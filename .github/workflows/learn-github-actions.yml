@@ -1,13 +1,11 @@
-name: learn-github-actions
-run-name: ${{ github.actor }} is learning GitHub Actions
+name: implement_GitHub_Actions
+run-name: EmoDb-etl_sample-action
 on: [push]
 jobs:
-  check-bats-version:
+  print-hello-world:
     runs-on: ubuntu-latest
     steps:
+      - run: echo "hello action"
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      - run: npm install -g bats
-      - run: bats -v
+      - run: echo " The ${{ github.repository }} repository is cloned."
+      
