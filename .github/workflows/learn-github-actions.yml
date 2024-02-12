@@ -2,6 +2,8 @@
 name: AWS example workflow
 on:
   push
+env:
+  AWS_REGION : "<ap-south-1>"
 # permission can be added at job level or workflow level
 permissions:
   id-token: write   # This is required for requesting the JWT
@@ -17,6 +19,7 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::058264087706:role/githubACTrole
           role-session-name: samplerolesession
+          aws-region: ${{ env.AWS_REGION }}
       # list s3
       - name:  using s3 command
         run: |
