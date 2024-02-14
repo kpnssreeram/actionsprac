@@ -8,5 +8,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "dumb git contexy"
-        run: echo '${{toJSOn(github.event}}' | jq
+        run: echo '${{toJSON(github.event}}' | jq
   
