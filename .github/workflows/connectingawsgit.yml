@@ -5,7 +5,7 @@ on:
     inputs:
       name:
         type: choice
-        description: Who to greets
+        description: Who to greets test2
         options: 
           - monalisa
           - cschleiden
