@@ -1,25 +1,30 @@
 
-name: AWS example workflow
+name: Mixed inputs
+
 on:
-  push
-env:
-  AWS_REGION: ap-south-1
-permissions:
-  id-token: write   # This is required for requesting the JWT
-  contents: read    # This is required for actions/checkout
+  workflow_dispatch:
+    inputs:
+      name:
+        type: choice
+        description: Who to greet
+        options: 
+          - monalisa
+          - cschleiden
+      message:
+        required: true
+      use-emoji:
+        type: boolean
+        description: Include 🎉🤣 emojis
+      environment:
+        type: environment
+
 jobs:
-  list_s3:
+  greet:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Git clone the repository
-        uses: actions/checkout@v4
-      - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          role-to-assume: arn:aws:iam::058264087706:role/githubACTrole
-          role-session-name: samplerolesession
-          aws-region: ${{ env.AWS_REGION }}
-      # listing s3 buckets
-      - name:  using s3 command
-        run: |
-          aws s3 ls
+      - name: Send greeting
+        run: echo "${{ github.event.inputs.message }} ${{ fromJSON('["", "🥳"]')[github.event.inputs['use-emoji']] }} ${{ github.event.inputs.name }}"
+
+
+
