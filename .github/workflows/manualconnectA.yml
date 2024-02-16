@@ -12,13 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Set Output for Workflow B
-        run: echo "::set-output name=my_data::Hello from Workflow A with input:${{ github.event.inputs.my_input }}"
-        env:
-          MY_INPUT: ${{ github.event.inputs.my_input }}
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
+      - run: mkdir -p path/to/artifact
+      - run: echo hello > path/to/artifact/world.txt
+      - uses: actions/upload-artifact@v4
         with:
           name: my-artifact
-          path: path/to/generated/data
+          path: path/to/artifact/world.txt
