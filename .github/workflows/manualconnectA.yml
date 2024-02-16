@@ -1,0 +1,24 @@
+name: Workflow A
+
+on:
+  workflow_dispatch:
+    inputs:
+      my_input:
+        description: 'Custom input for Workflow A'
+        required: true
+        
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set Output for Workflow B
+        run: echo "::set-output name=my_data::Hello from Workflow A with input:${{ github.event.inputs.my_input }}"
+        env:
+          MY_INPUT: ${{ github.event.inputs.my_input }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-artifact
+          path: path/to/generated/data
