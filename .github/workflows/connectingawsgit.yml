@@ -3,8 +3,11 @@ name: Workflow B
 on:
   workflow_run:
     workflows: ["Workflow A"]
+    branches:
+        - main
     types:
       - completed
+  
 
 jobs:
   deploy:
