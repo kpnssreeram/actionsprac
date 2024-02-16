@@ -1,0 +1,12 @@
+on:
+  repository_dispatch:
+    types: [run-test]
+
+jobs:
+  test-job:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.client_payload.ref == 'test' }}  
+    steps:
+      - name: Run tests
+        run: |
+          # Test commands here
