@@ -1,6 +1,4 @@
-on:
-  repository_dispatch:
-    types: [run-test]
+on: [push]
 
 jobs:
   test-job:
