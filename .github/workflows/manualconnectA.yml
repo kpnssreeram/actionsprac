@@ -1,21 +1,12 @@
-name: Workflow B
-
 on:
-  workflow_run:
-    workflows: ["Workflow A"]
-    branches:
-        - main
-    types:
-      - completed
-  
+  repository_dispatch:
+    types: [run-test]
 
 jobs:
-  deploy:
+  test-job:
     runs-on: ubuntu-latest
-
+    if: ${{ github.event.client_payload.ref == 'test' }}  
     steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: my-artifact
-      - name: Display structure of downloaded files
-        run: ls -R
+      - name: Run tests
+        run: |
+          # Test commands here
