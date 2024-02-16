@@ -5,7 +5,8 @@ on:
     workflows: ["Workflow A"]
     branches:
         - main
-    
+    types:
+      - completed
   
 
 jobs:
