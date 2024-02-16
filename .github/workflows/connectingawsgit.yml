@@ -1,31 +1,24 @@
-
-name: Mixed inputs
+name: Workflow B
 
 on:
-  workflow_dispatch:
-    inputs:
-      name:
-        type: choice
-        description: Who to greet
-        options: 
-          - monalisa
-          - cschleiden
-      message:
-        required: true
-      use-emoji:
-        type: boolean
-        description: Include 🎉🤣 emojis
-      environment:
-        type: environment
+  workflow_run:
+    workflows: ["Workflow A"]
+    types:
+      - completed
 
 jobs:
-  greet:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Send greeting
-        run: echo "${{ github.event.inputs.message }} ${{ fromJSON('["", "🥳"]')[github.event.inputs['use-emoji']] }} ${{ github.event.inputs.name }}"
+      - name: Download Artifact from Workflow A
+        uses: actions/download-artifact@v2
+        with:
+          name: my-artifact
+          path: path/to/downloaded/data
 
+      - name: Use Data from Workflow A
+        run: echo "Data received:${{ steps.download.outputs.artifact_path }}"
 
-
-
+      - name: Use Input from Workflow A
+        run: echo "Input from Workflow A:${{ needs.workflow-a.outputs.my_data }}"
