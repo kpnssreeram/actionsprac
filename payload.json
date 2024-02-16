@@ -1,7 +1,12 @@
 {
     "inputs": {
+<<<<<<< HEAD
       "NAME": "Manual Workflow",
       "SOME_VALUE": "ABC"
+=======
+      "message": "Manual Workflow",
+      "name ": "ABC"
+>>>>>>> origin/manual
     }
   }
   
