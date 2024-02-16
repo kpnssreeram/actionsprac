@@ -1,25 +1,12 @@
-name: Workflow A
+on: push
 
-on:
-  workflow_dispatch:
-    inputs:
-      my_input:
-        description: 'Custom input for Workflow A'
-        required: true
-        
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
+  call-test-workflow:
+    runs-on: ubuntu-latest    
     steps:
-      - run: mkdir -p path/to/artifact
-      - run: echo hello > path/to/artifact/world.txt
-      - uses: actions/upload-artifact@v4
-        with:
-          name: my-artifact
-          path: path/to/artifact/world.txt
-      - uses: actions/download-artifact@v4
-        with:
-          name: my-artifact
-      - name: Display structure of downloaded files
-        run: ls -R
+    - name: Trigger test workflow
+      uses: peter-evans/repository-dispatch@v1
+      with:
+        token: ${{ secrets.PAT }}
+        event-type: run-test
+        client-payload: '{"ref": "test"}'
