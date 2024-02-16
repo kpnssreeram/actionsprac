@@ -1,12 +1,9 @@
-on: push
-
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ "main" ]
 jobs:
   call-test-workflow:
     runs-on: ubuntu-latest    
     steps:
     - name: Trigger test workflow
-      uses: peter-evans/repository-dispatch@v1
-      with:
-        token: ${{ secrets.PAT }}
-        event-type: run-test
-        client-payload: '{"ref": "test"}'
