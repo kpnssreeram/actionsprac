@@ -13,14 +13,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download Artifact from Workflow A
-        uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4
         with:
           name: my-artifact
-          path: path/to/downloaded/data
-
-      - name: Use Data from Workflow A
-        run: echo "Data received:${{ steps.download.outputs.artifact_path }}"
-
-      - name: Use Input from Workflow A
-        run: echo "Input from Workflow A:${{ needs.workflow-a.outputs.my_data }}"
+      - name: Display structure of downloaded files
+        run: ls -R
