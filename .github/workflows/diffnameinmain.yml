@@ -1,0 +1,11 @@
+name: non default f
+on: 
+    workflow_dispatch:
+                  
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repository
+        uses: actions/checkout@v4
+   
