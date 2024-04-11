@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       Universe:
-        type: object
+        type: string
         required: false
 
 jobs:
