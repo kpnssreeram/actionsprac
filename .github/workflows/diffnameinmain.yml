@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       Universe:
-        type: string
+        type: object
         required: false
 
 jobs:
@@ -14,6 +14,4 @@ jobs:
       - name: Printing universe
         run: |
           echo "Input Universe:"
-          echo "${{ inputs.Universe }}"
-          echo "JSON Representation:"
           echo "${{ toJson(inputs.Universe) }}"
