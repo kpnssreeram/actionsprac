@@ -13,4 +13,4 @@ jobs:
     steps:
       - name: Printing universe
         run: |
-          echo "${{ toJson(inputs.Universe) }}"
+          echo ${{inputs.Universe}}
