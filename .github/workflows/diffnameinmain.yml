@@ -1,11 +1,19 @@
 name: non default f
 on: 
     workflow_dispatch:
+        inputs:
+            Universe:
+                description: 'Universe to deploy'
+                default: 'ci'
+                type: choice
+                options: [ci, cert, anon, uat, bazaar]
+                required: true
+        
                   
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: echoeing
-        run: echo "hello datadog from GHA"
+      - name: echoeing input
+        run: echo "${{inputs.Universe}}"
    
