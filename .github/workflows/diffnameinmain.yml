@@ -1,4 +1,4 @@
-name: non default f
+name: Non Default Workflow Dispatch
 
 on:
   workflow_dispatch:
@@ -11,6 +11,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Printing universe
-        run: |
-          echo ${{inputs.Universe}}
+    - name: Printing universe
+      run: |
+        echo "${{ inputs.Universe }}"
