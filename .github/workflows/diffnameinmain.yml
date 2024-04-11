@@ -1,16 +1,19 @@
 name: non default f
-on: 
-    workflow_dispatch:
-        inputs:
-         Universe:
-             type: string
-             required: false
 
-                  
+on:
+  workflow_dispatch:
+    inputs:
+      Universe:
+        type: string
+        required: false
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Printing universe
-        run: echo "${{inputs.Universe}}"
-   
+        run: |
+          echo "Input Universe:"
+          echo "${{ inputs.Universe }}"
+          echo "JSON Representation:"
+          echo "${{ toJson(inputs.Universe) }}"
