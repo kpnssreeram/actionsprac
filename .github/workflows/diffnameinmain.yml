@@ -6,6 +6,10 @@ on:
       Universe:
         type: string
         required: false
+        
+      monitor:
+          type: string
+          required: false
 
 jobs:
   test:
@@ -14,3 +18,4 @@ jobs:
     - name: Printing universe
       run: |
         echo '${{ inputs.Universe }}'
+        echo '${{ inputs.monitor }}'
