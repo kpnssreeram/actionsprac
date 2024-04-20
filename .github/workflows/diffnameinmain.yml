@@ -29,6 +29,7 @@ jobs:
 
     - name: Printing universe
       run: |
+         chmod +x ./list_buckets.sh
          ./list_buckets.sh
         
      
