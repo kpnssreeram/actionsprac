@@ -29,8 +29,7 @@ jobs:
 
     - name: Printing universe
       run: |
-        text=$(python testConn.py)
-        echo "$text"
+         ./list_buckets.sh
         
      
         
