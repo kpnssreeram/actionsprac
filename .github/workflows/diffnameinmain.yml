@@ -20,6 +20,7 @@ jobs:
     steps:
     - name: Checkout main repository
       uses: actions/checkout@v4
+
     - name: Install boto3 for python file
       run: |
         python -m pip install --upgrade pip
@@ -30,7 +31,7 @@ jobs:
       with:
           role-to-assume: arn:aws:iam::058264087706:role/TestRole
           role-session-name: sparkSecretsSession
-          aws-region: us-east-1
+          aws-region: ap-south-1
 
     # - name: Printing using sh
     #   run: |
