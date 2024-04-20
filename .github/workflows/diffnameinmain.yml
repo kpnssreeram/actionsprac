@@ -29,6 +29,6 @@ jobs:
 
     - name: Printing universe
       run: |
-       text= $(python ./testConn.py )
+       text= $(python testConn.py )
        echo "$text"
         
