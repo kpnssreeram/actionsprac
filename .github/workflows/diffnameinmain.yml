@@ -18,6 +18,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout main repository
+      uses: actions/checkout@v4
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
