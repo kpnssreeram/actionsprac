@@ -18,7 +18,7 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-          role-to-assume: arn:aws:iam::54905035217:role/deployCFNResource
+          role-to-assume: arn:aws:iam::058264087706:role/TestRole
           role-session-name: sparkSecretsSession
           aws-region: us-east-1
 
