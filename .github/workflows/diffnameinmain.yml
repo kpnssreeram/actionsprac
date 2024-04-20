@@ -15,7 +15,15 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+          role-to-assume: arn:aws:iam::54905035217:role/deployCFNResource
+          role-session-name: sparkSecretsSession
+          aws-region: us-east-1
+
     - name: Printing universe
       run: |
-        echo ${{ inputs.Universe }}
-        echo ${{ inputs.monitor }}
+       text= $(python ./testConn.py )
+       echo "$text"
+        
