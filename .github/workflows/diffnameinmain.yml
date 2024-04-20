@@ -10,7 +10,10 @@ on:
       monitor:
           type: string
           required: false
-
+permissions:
+  id-token: write
+  contents: read
+  actions: read
 jobs:
   test:
     runs-on: ubuntu-latest
