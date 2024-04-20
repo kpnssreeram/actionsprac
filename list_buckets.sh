@@ -1,5 +1,2 @@
-#!/bin/bash
-
-# List all S3 buckets
-
-aws s3 ls | awk '{print $3}'
+!/bin/bash
+aws s3 ls
