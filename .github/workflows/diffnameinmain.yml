@@ -33,10 +33,10 @@ jobs:
           role-session-name: sparkSecretsSession
           aws-region: ap-south-1
 
-    # - name: Printing using sh
-    #   run: |
-    #      chmod +x ./list_buckets.sh
-    #      ./list_buckets.sh
+    - name: Printing using sh
+      run: |
+         chmod +x ./list_buckets.sh
+         ./list_buckets.sh
   
     - name: Printing using py
       run: |
