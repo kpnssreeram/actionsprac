@@ -1,0 +1,77 @@
+name: Restart service
+on: 
+  workflow_dispatch:
+      inputs:
+          Universe:
+              description: 'Universe to deploy'
+              default: 'ci'
+              type: choice
+              options: [ci, cert, anon, uat, bazaar]
+              required: true
+          AWS_REGION:
+              description: 'AWS region to deploy'
+              default: 'us-east-1'
+              type: choice
+              options: [us-east-1]
+
+permissions:
+    id-token: write
+    contents: read
+    actions: read
+                  
+jobs:
+  deploy-emoji-service:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repository
+        uses: actions/checkout@v4
+
+      - name: Checkout repository with library file
+        uses: actions/checkout@v4
+        with:
+          repository: bvengineering/ActionsLibraryHub
+          ref: main
+          path: LibraryHub
+          token: ${{ secrets.TOKEN }}
+
+      - name: Fetch data 
+        run: |
+            label=$(python ./LibraryHub/EmodbLib.py getVpcByUniverse "${{inputs.Universe}}")
+            account_id=$(python ./LibraryHub/EmodbLib.py getAccountIdByUniverse "${{inputs.Universe}}")
+            echo "EnvTag=$label" >> $GITHUB_ENV;echo "AccId=$account_id" >> $GITHUB_ENV
+            
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+            role-to-assume: arn:aws:iam::${{env.AccId}}:role/deployCFNResource
+            role-session-name: emojiServiceSession
+            aws-region: ${{ inputs.AWS_REGION }}
+
+      - name: Alert to slack
+        uses: 8398a7/action-slack@v3
+        if: ${{ always() }}
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,job,workflow
+          author_name: The workflow at ${{ github.repository }} on branch ${{ github.ref_name }} is ${{ job.status }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Send PagerDuty alert on failure
+        if: ${{ failure() }}
+        uses: Entle/action-pagerduty-alert@0.2.0
+        with:
+          pagerduty-integration-key: '${{ secrets.PD_KEY }}'
+          pagerduty-dedup-key: github_workflow_failed
+
+      - name: Printing using sh
+        run: |
+          chmod +x ./list_buckets.sh
+          ./list_buckets.sh
+    
+      - name: Printing using py
+        run: |
+          python test.py
+        
+     
+        
