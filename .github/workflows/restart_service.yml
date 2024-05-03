@@ -26,43 +26,29 @@ jobs:
       - name: Checkout main repository
         uses: actions/checkout@v4
 
-      - name: Checkout repository with library file
-        uses: actions/checkout@v4
-        with:
-          repository: bvengineering/ActionsLibraryHub
-          ref: main
-          path: LibraryHub
-          token: ${{ secrets.TOKEN }}
-
-      - name: Fetch data 
+      - name: printing
         run: |
-            label=$(python ./LibraryHub/EmodbLib.py getVpcByUniverse "${{inputs.Universe}}")
-            account_id=$(python ./LibraryHub/EmodbLib.py getAccountIdByUniverse "${{inputs.Universe}}")
-            echo "EnvTag=$label" >> $GITHUB_ENV;echo "AccId=$account_id" >> $GITHUB_ENV
+          echo "${{inputs.AWS_REGION}}"
+      # - name: Checkout repository with library file
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: bvengineering/ActionsLibraryHub
+      #     ref: main
+      #     path: LibraryHub
+      #     token: ${{ secrets.TOKEN }}
+
+      # - name: Fetch data 
+      #   run: |
+      #       label=$(python ./LibraryHub/EmodbLib.py getVpcByUniverse "${{inputs.Universe}}")
+      #       account_id=$(python ./LibraryHub/EmodbLib.py getAccountIdByUniverse "${{inputs.Universe}}")
+      #       echo "EnvTag=$label" >> $GITHUB_ENV;echo "AccId=$account_id" >> $GITHUB_ENV
             
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-            role-to-assume: arn:aws:iam::${{env.AccId}}:role/deployCFNResource
-            role-session-name: emojiServiceSession
-            aws-region: ${{ inputs.AWS_REGION }}
-
-      - name: Alert to slack
-        uses: 8398a7/action-slack@v3
-        if: ${{ always() }}
-        with:
-          status: ${{ job.status }}
-          fields: repo,message,job,workflow
-          author_name: The workflow at ${{ github.repository }} on branch ${{ github.ref_name }} is ${{ job.status }}
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-
-      - name: Send PagerDuty alert on failure
-        if: ${{ failure() }}
-        uses: Entle/action-pagerduty-alert@0.2.0
-        with:
-          pagerduty-integration-key: '${{ secrets.PD_KEY }}'
-          pagerduty-dedup-key: github_workflow_failed
+      # - name: Configure AWS Credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #       role-to-assume: arn:aws:iam::${{env.AccId}}:role/deployCFNResource
+      #       role-session-name: emojiServiceSession
+      #       aws-region: ${{ inputs.AWS_REGION }}
 
       - name: Printing using sh
         run: |
@@ -72,6 +58,25 @@ jobs:
       - name: Printing using py
         run: |
           python test.py
+
+      # - name: Alert to slack
+      #   uses: 8398a7/action-slack@v3
+      #   if: ${{ always() }}
+      #   with:
+      #     status: ${{ job.status }}
+      #     fields: repo,message,job,workflow
+      #     author_name: The workflow at ${{ github.repository }} on branch ${{ github.ref_name }} is ${{ job.status }}
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      # - name: Send PagerDuty alert on failure
+      #   if: ${{ failure() }}
+      #   uses: Entle/action-pagerduty-alert@0.2.0
+      #   with:
+      #     pagerduty-integration-key: '${{ secrets.PD_KEY }}'
+      #     pagerduty-dedup-key: github_workflow_failed
+
+     
         
      
         
