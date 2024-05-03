@@ -22,7 +22,7 @@ jobs:
 
       - name: printing
         run: |
-          echo "${{inputs.AWS_REGION}}"
+          echo ${{inputs.Universe}} ${{inputs.AWS_REGION}}
       # - name: Checkout repository with library file
       #   uses: actions/checkout@v4
       #   with:
@@ -44,14 +44,14 @@ jobs:
       #       role-session-name: emojiServiceSession
       #       aws-region: ${{ inputs.AWS_REGION }}
 
-      - name: Printing using sh
-        run: |
-          chmod +x ./list_buckets.sh
-          ./list_buckets.sh
+      # - name: Printing using sh
+      #   run: |
+      #     chmod +x ./list_buckets.sh
+      #     ./list_buckets.sh
     
-      - name: Printing using py
-        run: |
-          python test.py
+      # - name: Printing using py
+      #   run: |
+      #     python test.py
 
       # - name: Alert to slack
       #   uses: 8398a7/action-slack@v3
