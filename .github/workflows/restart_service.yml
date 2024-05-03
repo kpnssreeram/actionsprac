@@ -3,17 +3,11 @@ on:
   workflow_dispatch:
       inputs:
           Universe:
-              description: 'Universe to deploy'
-              default: 'ci'
-              type: choice
-              options: [ci, cert, anon, uat, bazaar]
-              required: true
+            type: string
+            required: false
           AWS_REGION:
-              description: 'AWS region to deploy'
-              default: 'us-east-1'
-              type: choice
-              options: [us-east-1]
-
+            type: string
+            required: false
 permissions:
     id-token: write
     contents: read
