@@ -8,7 +8,7 @@ on:
           AWS_REGION:
             type: string
             required: false
-          Instance_id:
+          Instance:
             type: string
             required: false
 
