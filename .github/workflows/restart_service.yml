@@ -26,7 +26,7 @@ jobs:
 
       - name: printing
         run: |
-          echo ${{inputs.Universe}} ${{inputs.AWS_REGION}} ${{inputs.Instance_id}}
+          echo ${{inputs.Universe}} ${{inputs.AWS_REGION}} ${{inputs.Instance}}
 
       
       # - name: Checkout repository with library file
