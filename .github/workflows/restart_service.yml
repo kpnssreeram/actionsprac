@@ -8,6 +8,10 @@ on:
           AWS_REGION:
             type: string
             required: false
+          Instance_id:
+            type: string
+            required: false
+
 permissions:
     id-token: write
     contents: read
@@ -22,7 +26,9 @@ jobs:
 
       - name: printing
         run: |
-          echo ${{inputs.Universe}} ${{inputs.AWS_REGION}}
+          echo ${{inputs.Universe}} ${{inputs.AWS_REGION}} ${{inputs.Instance_id}}
+
+      
       # - name: Checkout repository with library file
       #   uses: actions/checkout@v4
       #   with:
