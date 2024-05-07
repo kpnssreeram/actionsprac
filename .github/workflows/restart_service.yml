@@ -34,6 +34,11 @@ jobs:
             role-to-assume: arn:aws:iam::549050352176:role/TestingDataDog_role
             role-session-name: restartservice
             aws-region: us-east-1
+
+      - name: Printing using sh
+        run: |
+          chmod +x ./ssmcmd.sh
+          ./ssmcmd.sh ${{ inputs.AWS_REGION }} ${{ inputs.Instance }}   
   
         
            
