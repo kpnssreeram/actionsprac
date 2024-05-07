@@ -11,12 +11,12 @@ DOCUMENT_NAME="AWS-RunShellScript"
 COMMAND="hostname"
 
 # Send the SSM command
-command_id=$(aws ssm send-command \
+output=$(aws ssm send-command \
     --region "$AWS_REGION" \
     --targets "Key=instanceids,Values=$Instance" \
     --document-name "$DOCUMENT_NAME" \
     --parameters commands="$COMMAND" \
     --output text \
-    --query 'Command.CommandId')
+    --query 'Command.CommandId'2>&1)
 
-echo "Command output sent with ID: $command_id"
+echo "Command output sent with ID: $output"
