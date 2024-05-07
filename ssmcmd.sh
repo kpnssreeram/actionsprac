@@ -52,4 +52,4 @@ executedOutput=$(aws ssm list-command-invocations  --region $AWS_REGION  --comma
 #     --query "CommandInvocation.CommandPlugins[0].Output" \
 #     --output text)
 
-echo "Command output: $COMMAND_OUTPUT"
+echo "Command output: $executedOutput"
