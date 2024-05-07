@@ -17,6 +17,6 @@ output=$(aws ssm send-command \
     --document-name "$DOCUMENT_NAME" \
     --parameters commands="$COMMAND" \
     --output text \
-    --query 'Command.CommandId'2>&1)
+    --query 'Command.CommandId' 2>&1)
 
 echo "Command output sent with ID: $output"
