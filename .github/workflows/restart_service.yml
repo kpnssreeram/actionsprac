@@ -28,6 +28,16 @@ jobs:
         run: |
           echo ${{inputs.Universe}} ${{inputs.AWS_REGION}} ${{inputs.Instance}}
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+            role-to-assume: arn:aws:iam::549050352176:role/TestingDataDog_role
+            role-session-name: restartservice
+            aws-region: ${{ inputs.AWS_REGION }}
+  
+        
+           
+
       
       # - name: Checkout repository with library file
       #   uses: actions/checkout@v4
