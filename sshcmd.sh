@@ -1,14 +1,13 @@
 #!/bin/bash
 
 # Parameters
-
-REGION="$1"
+AWS_REGION="$1"
 INSTANCE_ID="$2"
 
 # Retrieve the public IP address of the instance
 INSTANCE_IP=$(aws ec2 describe-instances \
+    --region "$AWS_REGION" \
     --instance-ids "$INSTANCE_ID" \
-    --region "$REGION" \
     --query 'Reservations[0].Instances[0].PublicIpAddress' \
     --output text)
 
@@ -19,7 +18,7 @@ if [ -z "$INSTANCE_IP" ]; then
 fi
 
 # Execute the command on the instance using SSH
-ssh "$INSTANCE_IP" "sudo /usr/local/bin/supervisorctl restart all"
+ssh -o StrictHostKeyChecking=no "$INSTANCE_IP" "sudo /usr/local/bin/supervisorctl restart all"
 
 # Check the exit status of the SSH command
 if [ $? -eq 0 ]; then
