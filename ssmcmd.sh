@@ -53,4 +53,13 @@ Instance="$2"
 
 outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Run echo command" --parameters commands='sudo /usr/local/bin/supervisorctl restart all'  --region $AWS_REGION --output text --query "Command.CommandId")
 executedOutput=$(aws ssm list-command-invocations  --region $AWS_REGION  --command-id "$outputSendCommand" --no-cli-pager --details --output text --query "CommandInvocations[].CommandPlugins[].{Output:Output}")
-echo "Command output: $executedOutput"
+# echo "Command output: $executedOutput"
+status=$(echo "$executedOutput" | awk '{print $1}')
+output=$(echo "$executedOutput" | awk '{$1=""; print substr($0,2)}')
+
+if [ "$status" = "Success" ]; then
+    echo "Command executed successfully."
+    echo "Command output: $output"
+else
+    echo "Command execution failed or is still in progress."
+fi
