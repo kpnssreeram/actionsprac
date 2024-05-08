@@ -1,11 +1,14 @@
 #!/bin/bash
 
 # Parameters
+
+REGION="$1"
 INSTANCE_ID="$2"
 
 # Retrieve the public IP address of the instance
 INSTANCE_IP=$(aws ec2 describe-instances \
     --instance-ids "$INSTANCE_ID" \
+    --region "$REGION" \
     --query 'Reservations[0].Instances[0].PublicIpAddress' \
     --output text)
 
