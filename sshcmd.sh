@@ -1,11 +1,19 @@
 #!/bin/bash
 
 # Parameters
-INSTANCE_IP="$2"  # Use instance IP or DNS name if direct instance ID is not accessible
-AWS_REGION="$1"  # Update with your AWS region if necessary
+INSTANCE_ID="$2"
 
-# Set AWS CLI environment variables if needed
-export AWS_DEFAULT_REGION="$AWS_REGION"
+# Retrieve the public IP address of the instance
+INSTANCE_IP=$(aws ec2 describe-instances \
+    --instance-ids "$INSTANCE_ID" \
+    --query 'Reservations[0].Instances[0].PublicIpAddress' \
+    --output text)
+
+# Check if the instance IP is retrieved successfully
+if [ -z "$INSTANCE_IP" ]; then
+    echo "Failed to retrieve instance IP"
+    exit 1
+fi
 
 # Execute the command on the instance using SSH
 ssh "$INSTANCE_IP" "sudo /usr/local/bin/supervisorctl restart all"
