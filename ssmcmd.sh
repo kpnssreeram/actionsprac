@@ -1,10 +1,10 @@
-!/bin/bash
+# !/bin/bash
 
-Parameters
+# Parameters
 AWS_REGION="$1"
 Instance="$2"
 
-Restart services using AWS Systems Manager Run Command
+# Restart services using AWS Systems Manager Run Command
 COMMAND_OUTPUT=$(aws ssm send-command \
     --region "$AWS_REGION" \
     --instance-ids "$Instance" \
