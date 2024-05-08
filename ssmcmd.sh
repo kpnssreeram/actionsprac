@@ -60,7 +60,7 @@ COMMAND_OUTPUT=$(aws ssm send-command \
     --region "$AWS_REGION" \
     --instance-ids "$Instance" \
     --document-name "AWS-RunShellScript" \
-    --parameters '{"commands":["sudo su -c \"/usr/local/bin/supervisorctl restart all\""]}' \
+    --parameters '{"commands":["ls"]}' \
     --query 'Command.CommandId' \
     --output text)
 
