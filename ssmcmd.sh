@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Parameters
-AWS_REGION="$1"
-Instance="$2"
+# AWS_REGION="$1"
+# Instance="$2"
 
 # Restart services using AWS Systems Manager Run Command
 # COMMAND_OUTPUT=$(aws ssm send-command \
@@ -60,7 +60,7 @@ COMMAND_OUTPUT=$(aws ssm send-command \
     --region "$AWS_REGION" \
     --instance-ids "$Instance" \
     --document-name "AWS-RunShellScript" \
-    --parameters '{"commands":["sudo /usr/local/bin/supervisorctl restart all"]}' \
+    --parameters '{"commands":["sudo su -c \"/usr/local/bin/supervisorctl restart all\""]}' \
     --query 'Command.CommandId' \
     --output text)
 
