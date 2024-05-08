@@ -51,6 +51,6 @@ Instance="$2"
 # echo "$OUTPUT"
 
 
-outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Run echo command" --parameters commands='sudo /usr/local/bin/supervisorctl restart all && history'  --region $AWS_REGION --output text --query "Command.CommandId")
+outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Run echo command" --parameters commands='sudo /usr/local/bin/supervisorctl stop all && history && sudo /usr/local/bin/supervisorctl status all && sudo /usr/local/bin/supervisorctl start all && history && sudo /usr/local/bin/supervisorctl status all'  --region $AWS_REGION --output text --query "Command.CommandId")
 executedOutput=$(aws ssm list-command-invocations  --region $AWS_REGION  --command-id "$outputSendCommand" --no-cli-pager --details --output text --query "CommandInvocations[].CommandPlugins[].{Output:Output}")
 echo "Command output: $executedOutput"
