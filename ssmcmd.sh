@@ -42,7 +42,10 @@ COMMAND="hostname"
 # done
 outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Run echo command" --parameters commands='hostname'  --region $AWS_REGION --output text --query "Command.CommandId")
 executedOutput=$(aws ssm list-command-invocations  --region $AWS_REGION  --command-id "$outputSendCommand" --no-cli-pager --details --output text --query "CommandInvocations[].CommandPlugins[].{Output:Output}")
-                
+               
+
+
+
 
 # # Get the command output
 # COMMAND_OUTPUT=$(aws ssm get-command-invocation \
