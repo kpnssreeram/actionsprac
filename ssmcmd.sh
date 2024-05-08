@@ -4,55 +4,53 @@
 AWS_REGION="$1"
 Instance="$2"
 
-# SSM Document Name
-DOCUMENT_NAME="AWS-RunShellScript"
+# Restart services using AWS Systems Manager Run Command
+COMMAND_OUTPUT=$(aws ssm send-command \
+    --region "$AWS_REGION" \
+    --instance-ids "$Instance" \
+    --document-name "AWS-RunShellScript" \
+    --parameters '{"commands":["sudo /usr/local/bin/supervisorctl restart all"]}' \
+    --query 'Command.CommandId' \
+    --output text)
 
-# Command to run on the instance
-COMMAND="hostname"
+# Check if the command was sent successfully
+if [ -z "$COMMAND_OUTPUT" ]; then
+    echo "Failed to send command"
+    exit 1
+fi
 
-# Send the SSM command and capture the output
-# COMMAND_ID=$(aws ssm send-command \
-#     --region "$AWS_REGION" \
-#     --targets "Key=instanceids,Values=$Instance" \
-#     --document-name "$DOCUMENT_NAME" \
-#     --parameters commands="$COMMAND" \
-#     --output text \
-#     --query 'Command.CommandId')
+# Wait for the command to complete and get the status
+while true; do
+    STATUS=$(aws ssm list-command-invocations \
+        --region "$AWS_REGION" \
+        --command-id "$COMMAND_OUTPUT" \
+        --query 'CommandInvocations[0].Status' \
+        --output text)
 
-# echo "Command sent with ID: $COMMAND_ID"
+    if [ "$STATUS" == "Success" ]; then
+        echo "Command execution successful"
+        break
+    elif [ "$STATUS" == "Failed" ]; then
+        echo "Command execution failed"
+        break
+    else
+        echo "Command status: $STATUS"
+        sleep 5
+    fi
+done
 
-# # Wait for the command to complete
-# while true; do
-#     COMMAND_STATUS=$(aws ssm list-command-invocations \
-#         --region "$AWS_REGION" \
-#         --command-id "$COMMAND_ID" \
-#         --details \
-#         --query "CommandInvocations[0].Status" \
-#         --output text)
+# Get the command output
+OUTPUT=$(aws ssm get-command-invocation \
+    --region "$AWS_REGION" \
+    --command-id "$COMMAND_OUTPUT" \
+    --instance-id "$Instance" \
+    --query 'CommandInvocation.CommandPlugins[0].Output' \
+    --output text)
 
-#     if [ "$COMMAND_STATUS" == "Success" ]; then
-#         break
-#     elif [ "$COMMAND_STATUS" == "Failed" ]; then
-#         echo "Command failed."
-#         exit 1
-#     else
-#         echo "Command is still running..."
-#         sleep 5
-#     fi
-# done
-outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Run echo command" --parameters commands='hostname'  --region $AWS_REGION --output text --query "Command.CommandId")
-executedOutput=$(aws ssm list-command-invocations  --region $AWS_REGION  --command-id "$outputSendCommand" --no-cli-pager --details --output text --query "CommandInvocations[].CommandPlugins[].{Output:Output}")
-               
-
-
+echo "Command output:"
+echo "$OUTPUT"
 
 
-# # Get the command output
-# COMMAND_OUTPUT=$(aws ssm get-command-invocation \
-#     --region "$AWS_REGION" \
-#     --command-id "$COMMAND_ID" \
-#     --instance-id "$Instance" \
-#     --query "CommandInvocation.CommandPlugins[0].Output" \
-#     --output text)
-
-echo "Command output: $executedOutput"
+# outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Run echo command" --parameters commands='hostname'  --region $AWS_REGION --output text --query "Command.CommandId")
+# executedOutput=$(aws ssm list-command-invocations  --region $AWS_REGION  --command-id "$outputSendCommand" --no-cli-pager --details --output text --query "CommandInvocations[].CommandPlugins[].{Output:Output}")
+# echo "Command output: $executedOutput"
