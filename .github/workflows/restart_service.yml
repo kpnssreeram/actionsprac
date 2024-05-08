@@ -37,8 +37,8 @@ jobs:
 
       - name: Printing using sh
         run: |
-          chmod +x ./sshcmd.sh
-          ./sshcmd.sh ${{ inputs.AWS_REGION }} ${{ inputs.Instance }}   
+          chmod +x ./ssmcmd.sh
+          ./ssmcmd.sh ${{ inputs.AWS_REGION }} ${{ inputs.Instance }}   
   
         
            
