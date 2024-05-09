@@ -38,7 +38,7 @@ jobs:
       - name: Printing using sh
         run: |
           
-          aws ssm start-session --target i-0123456789abcdef0
+          aws ssm start-session --target i-05d009d2540450091
    
   
         
