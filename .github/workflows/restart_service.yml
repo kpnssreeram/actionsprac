@@ -37,9 +37,8 @@ jobs:
 
       - name: Printing using sh
         run: |
-          
-          aws ssm start-session --target i-05d009d2540450091
-   
+          chmod +x ./ssmcmd.sh
+          ./ssmcmd.sh ${{ inputs.AWS_REGION }} ${{ inputs.Instance }}   
   
         
            
