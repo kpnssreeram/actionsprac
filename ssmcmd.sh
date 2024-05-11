@@ -54,7 +54,7 @@ outputSendCommand=$(aws ssm send-command \
   --instance-ids "$Instance" \
   --document-name "AWS-RunShellScript" \
   --comment "Restart services" \
-  --parameters commands='sudo /usr/local/bin/supervisorctl restart all > ScriptExecLog.txt && sudo systemctl restart cassandra.service > ScriptExecLog1.txt' \
+  --parameters commands='sudo /usr/local/bin/supervisorctl stop > ScriptExecLog.txt && sudo systemctl stop cassandra.service > ScriptExecLog1.txt' \
   --region $AWS_REGION \
   --output text \
   --query "Command.CommandId")
