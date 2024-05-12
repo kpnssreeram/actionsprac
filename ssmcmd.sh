@@ -55,9 +55,12 @@ outputSendCommand=$(aws ssm send-command \
   --document-name "AWS-RunShellScript" \
   --comment "Restart services" \
   --parameters commands='sudo /usr/local/bin/supervisorctl restart all > ScriptExecLog.txt && sudo systemctl restart cassandra.service > ScriptExecLog1.txt' \
-  --region $AWS_REGION \
+  --region "$AWS_REGION" \
   --output text \
+  --max-concurrency "5" \
+  --max-errors "2" \
   --query "Command.CommandId")
+
 # outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Run echo command" --parameters commands='sudo /usr/local/bin/supervisorctl restart all > ScriptExecLog.txt'  --region $AWS_REGION --output text --query "Command.CommandId")
 executedOutput=$(aws ssm list-command-invocations  --region $AWS_REGION  --command-id "$outputSendCommand" --no-cli-pager --details --output text --query "CommandInvocations[].CommandPlugins[].{Output:Output}")
 while true; do
