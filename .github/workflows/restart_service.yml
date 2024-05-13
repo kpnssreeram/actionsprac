@@ -38,7 +38,19 @@ jobs:
       - name: Printing using sh
         run: |
           chmod +x ./ssmcmd.sh
-          ./ssmcmd.sh ${{ inputs.AWS_REGION }} ${{ inputs.Instance }}   
+          IFS=',' read -ra regions <<< "${{ inputs.AWS_REGION }}"
+          IFS=',' read -ra instances <<< "${{ inputs.Instance }}"
+
+          # Process each region and instance ID pair in parallel
+          for i in "${!regions[@]}"; do
+            region="${regions[i]}"
+            instance="${instances[i]}"
+            ./ssmcmd.sh "$region" "$instance" &
+          done
+
+          # Wait for all commands to finish
+          wait
+           
   
         
            

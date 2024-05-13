@@ -16,8 +16,7 @@ jobs:
         run: |
           # Split the input parameter into an array
           IFS=',' read -ra inputs <<< "${{ github.event.inputs.regions }}"
-          
           # Loop through each input and print it
-          for input in "${inputs[@]}"; do
-            echo "Input: $input"
+          for input in ${inputs[@]}; do
+            echo $input
           done
