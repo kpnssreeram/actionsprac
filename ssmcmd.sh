@@ -3,11 +3,11 @@ retries=0
 
 while [ $retries -le $max_retries ]; do
     outputSendCommand=$(aws ssm send-command \
-        --instance-ids "$Instance" \
+        --instance-ids $Instance \
         --document-name "AWS-RunShellScript" \
         --comment "Restart services" \
         --parameters commands='sudo /usr/local/bin/supervisorctl restart all > ScriptExecLog.txt && sudo systemctl restart cassandra.service > ScriptExecLog1.txt' \
-        --region "$AWS_REGION" \
+        --region $AWS_REGION\
         --output text \
         --max-concurrency "5" \
         --max-errors "2" \
@@ -36,7 +36,7 @@ while [ $retries -le $max_retries ]; do
         done
     else
         retries=$((retries + 1))
-        echo "Provided region_name '$AWS_REGION' doesn't match a supported format."
+        echo "Provided region_name $AWS_REGION doesn't match a supported format."
     fi
 done
 
