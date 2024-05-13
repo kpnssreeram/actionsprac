@@ -1,9 +1,7 @@
-
 AWS_REGION="$1"
 Instance="$2"
 
 outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Run echo command" --parameters commands='sudo /usr/local/bin/supervisorctl restart all> ScriptExecLog.txt'  --region $AWS_REGION --output text --query "Command.CommandId")
-executedOutput=$(aws ssm list-command-invocations  --region $AWS_REGION  --command-id "$outputSendCommand" --no-cli-pager --details --output text --query "CommandInvocations[].CommandPlugins[].{Output:Output}")
 while true; do
     STATUS=$(aws ssm list-command-invocations \
         --region "$AWS_REGION" \
