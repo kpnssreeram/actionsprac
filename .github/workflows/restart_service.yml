@@ -24,12 +24,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-            role-to-assume: arn:aws:iam::549050352176:role/TestingDataDog_role
-            role-session-name: restartservice
-            aws-region: ${{inputs.AWS_REGION}}
+      # - name: Configure AWS Credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #       role-to-assume: arn:aws:iam::549050352176:role/TestingDataDog_role
+      #       role-session-name: restartservice
+      #       aws-region: ${{inputs.AWS_REGION}}
       - name: Make ssmcmd.sh executable
         run: chmod +x ./ssmcmd.sh
 
