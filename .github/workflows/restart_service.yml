@@ -19,7 +19,7 @@ permissions:
   actions: read
 jobs:
   run-ssm-command:
-    runs-on: ubuntu-latest=
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
