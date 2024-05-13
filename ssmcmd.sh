@@ -1,5 +1,7 @@
+AWS_REGION="$1"
+Instance="$2"
 max_retries=5
-retries=0
+retries=5
 
 while [ $retries -le $max_retries ]; do
     outputSendCommand=$(aws ssm send-command \
