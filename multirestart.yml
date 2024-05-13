@@ -1,0 +1,23 @@
+name: Print Inputs Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      regions:
+        description: 'Regions to process (comma-separated)'
+        required: true
+
+jobs:
+  print-inputs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print Inputs
+        run: |
+          # Split the input parameter into an array
+          IFS=',' read -ra inputs <<< "${{ github.event.inputs.regions }}"
+          
+          # Loop through each input and print it
+          for input in "${inputs[@]}"; do
+            echo "Input: $input"
+          done
