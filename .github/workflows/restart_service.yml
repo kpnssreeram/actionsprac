@@ -1,4 +1,4 @@
-name: Run SSM Command
+name: Restart service
 
 on:
   workflow_dispatch:
