@@ -1,55 +1,49 @@
-name: Restart service
-on: 
+name: Run SSM Command
+
+on:
   workflow_dispatch:
-      inputs:
-          Universe:
-            type: string
-            required: false
-          AWS_REGION:
-            type: string
-            required: false
-          Instance:
-            type: string
-            required: false
+    inputs:
+      AWS_REGION:
+        description: 'AWS Regions (comma-separated)'
+        required: true
+      Instance:
+        description: 'Instance IDs (comma-separated)'
+        required: true
 
-permissions:
-    id-token: write
-    contents: read
-    actions: read
-                  
 jobs:
-  deploy-emoji-service:
+  run-ssm-command:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout main repository
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      - name: printing
+      - name: Make ssmcmd.sh executable
+        run: chmod +x ./ssmcmd.sh
+
+      - name: Run SSM Command
         run: |
-          echo ${{inputs.Universe}} ${{inputs.AWS_REGION}} ${{inputs.Instance}}
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-            role-to-assume: arn:aws:iam::549050352176:role/TestingDataDog_role
-            role-session-name: restartservice
-            aws-region: us-east-1
-
-      - name: Printing using sh
-        run: |
-          chmod +x ./ssmcmd.sh
+          # Split the input parameters into arrays without quotes
           IFS=',' read -ra regions <<< "${{ inputs.AWS_REGION }}"
           IFS=',' read -ra instances <<< "${{ inputs.Instance }}"
+
+          # Ensure the arrays have the same length
+          if [ ${#regions[@]} -ne ${#instances[@]} ]; then
+            echo "Error: The number of regions does not match the number of instances."
+            exit 1
+          fi
 
           # Process each region and instance ID pair in parallel
           for i in "${!regions[@]}"; do
             region="${regions[i]}"
             instance="${instances[i]}"
+            echo "Processing region: $region, instance: $instance"
             ./ssmcmd.sh "$region" "$instance" &
           done
 
           # Wait for all commands to finish
           wait
+
            
   
         
