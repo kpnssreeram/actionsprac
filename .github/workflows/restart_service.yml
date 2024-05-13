@@ -9,6 +9,9 @@ on:
       Instance:
         description: 'Instance IDs (comma-separated)'
         required: true
+      Universe:
+        type: string
+        required: false
 
 jobs:
   run-ssm-command:
