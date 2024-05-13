@@ -1,83 +1,45 @@
-# !/bin/bash
+max_retries=5
+retries=0
 
-# Parameters
-AWS_REGION="$1"
-Instance="$2"
-
-# # Restart services using AWS Systems Manager Run Command
-# COMMAND_OUTPUT=$(aws ssm send-command \
-#     --region "$AWS_REGION" \
-#     --instance-ids "$Instance" \
-#     --document-name "AWS-RunShellScript" \
-#     --parameters '{"commands":["ls"]}' \
-#     --query 'Command.CommandId' \
-#     --output text)
-
-# # Check if the command was sent successfully
-# if [ -z "$COMMAND_OUTPUT" ]; then
-#     echo "Failed to send command"
-#     exit 1
-# fi
-
-# # Wait for the command to complete and get the status
-# while true; do
-#     STATUS=$(aws ssm list-command-invocations \
-#         --region "$AWS_REGION" \
-#         --command-id "$COMMAND_OUTPUT" \
-#         --query 'CommandInvocations[0].Status' \
-#         --output text)
-
-#     if [ "$STATUS" == "Success" ]; then
-#         echo "Command execution successful"
-#         break
-#     elif [ "$STATUS" == "Failed" ]; then
-#         echo "Command execution failed"
-#         break
-#     else
-#         echo "Command status: $STATUS"
-#         sleep 5
-#     fi
-# done
-
-# # Get the command output
-# OUTPUT=$(aws ssm get-command-invocation \
-#     --region "$AWS_REGION" \
-#     --command-id "$COMMAND_OUTPUT" \
-#     --instance-id "$Instance" \
-#     --query 'CommandInvocation.CommandPlugins[0].Output' \
-#     --output text)
-
-# echo "Command output:"
-# echo "$OUTPUT"
-
-outputSendCommand=$(aws ssm send-command \
-  --instance-ids "$Instance" \
-  --document-name "AWS-RunShellScript" \
-  --comment "Restart services" \
-  --parameters commands='sudo /usr/local/bin/supervisorctl restart all > ScriptExecLog.txt && sudo systemctl restart cassandra.service > ScriptExecLog1.txt' \
-  --region "$AWS_REGION" \
-  --output text \
-  --max-concurrency "5" \
-  --max-errors "2" \
-  --query "Command.CommandId")
-
-# outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Run echo command" --parameters commands='sudo /usr/local/bin/supervisorctl restart all > ScriptExecLog.txt'  --region $AWS_REGION --output text --query "Command.CommandId")
-executedOutput=$(aws ssm list-command-invocations  --region $AWS_REGION  --command-id "$outputSendCommand" --no-cli-pager --details --output text --query "CommandInvocations[].CommandPlugins[].{Output:Output}")
-while true; do
-    STATUS=$(aws ssm list-command-invocations \
+while [ $retries -le $max_retries ]; do
+    outputSendCommand=$(aws ssm send-command \
+        --instance-ids "$Instance" \
+        --document-name "AWS-RunShellScript" \
+        --comment "Restart services" \
+        --parameters commands='sudo /usr/local/bin/supervisorctl restart all > ScriptExecLog.txt && sudo systemctl restart cassandra.service > ScriptExecLog1.txt' \
         --region "$AWS_REGION" \
-        --command-id "$outputSendCommand" \
-        --query 'CommandInvocations[0].Status' \
-        --output text)
+        --output text \
+        --max-concurrency "5" \
+        --max-errors "5" \
+        --query "Command.CommandId" 2>/dev/null)
 
-    if [ "$STATUS" == "Success" ]; then
-        echo "Command execution successful"
-        break
-    elif [ "$STATUS" == "Failed" ]; then
-        echo "Command execution failed"
-        break
+    if [ -n "$outputSendCommand" ]; then
+        executedOutput=$(aws ssm list-command-invocations --region $AWS_REGION --command-id "$outputSendCommand" --no-cli-pager --details --output text --query "CommandInvocations[].CommandPlugins[].{Output:Output}")
+
+        while true; do
+            STATUS=$(aws ssm list-command-invocations \
+                --region "$AWS_REGION" \
+                --command-id "$outputSendCommand" \
+                --query 'CommandInvocations[0].Status' \
+                --output text)
+
+            if [ "$STATUS" == "Success" ]; then
+                echo "Command execution successful"
+                break 2
+            elif [ "$STATUS" == "Failed" ]; then
+                echo "Command execution failed"
+                break 2
+            else
+                echo "Command status: $STATUS"
+                sleep 5
+            fi
+        done
     else
-        echo "Command status: $STATUS"
-        sleep 5
+        retries=$((retries + 1))
+        echo "Provided region_name '$AWS_REGION' doesn't match a supported format."
     fi
 done
+
+if [ $retries -gt $max_retries ]; then
+    echo "Maximum number of retries reached. Exiting."
+fi
