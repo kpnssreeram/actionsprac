@@ -77,3 +77,4 @@ jobs:
           instance="${{ matrix.instance }}"
 
           echo "Processing region: $region, instance: $instance"
+          ./ssmcmd.sh "$region" "$instance" &
