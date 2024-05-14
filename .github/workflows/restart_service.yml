@@ -29,7 +29,7 @@ jobs:
         with:
             role-to-assume: arn:aws:iam::549050352176:role/TestingDataDog_role
             role-session-name: restartservice
-            aws-region: ${{inputs.AWS_REGION}}
+            aws-region: eu-west-1
       - name: Make ssmcmd.sh executable
         run: chmod +x ./ssmcmd.sh
 
