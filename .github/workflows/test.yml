@@ -47,8 +47,7 @@ jobs:
             matrix_entries="$matrix_entries\n      - region: $region\n        instance: $instance"
           done
 
-          echo "matrix:
-  region-instance: [$matrix_entries]" >> $GITHUB_ENV
+          echo "matrix:region-instance: [$matrix_entries]" >> $GITHUB_ENV
 
       - name: Set up matrix
         uses: actions/github-script@v6
