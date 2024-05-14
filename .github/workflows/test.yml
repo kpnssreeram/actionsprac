@@ -19,48 +19,42 @@ permissions:
   actions: read
 
 jobs:
-  run-ssm-command:
+  setup-matrix:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        region-instance: []
-
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Process Inputs
-        id: process-inputs
+      - name: Set up Matrix
+        id: set-matrix
         run: |
-          IFS=',' read -ra regions <<< "${{ inputs.AWS_REGION }}"
-          IFS=',' read -ra instances <<< "${{ inputs.Instance }}"
-          
+          IFS=',' read -ra regions <<< "${{ github.event.inputs.AWS_REGION }}"
+          IFS=',' read -ra instances <<< "${{ github.event.inputs.Instance }}"
+
           if [ ${#regions[@]} -ne ${#instances[@]} ]; then
             echo "Error: The number of regions does not match the number of instances."
             exit 1
           fi
-          
+
           matrix_entries=""
+
           for i in "${!regions[@]}"; do
             region="${regions[i]}"
             instance="${instances[i]}"
-            matrix_entries="$matrix_entries\n - region: $region\n instance: $instance"
+            matrix_entries="${matrix_entries}{\"region\":\"${region}\",\"instance\":\"${instance}\"},"
           done
-          
-          echo "matrix:
-          region-instance: [$matrix_entries]" >> $GITHUB_ENV
 
-      - name: Set up matrix
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const fs = require('fs');
-            const env = fs.readFileSync(process.env.GITHUB_ENV, 'utf8');
-            const matrix = JSON.parse(env.split('matrix: ')[1]);
-            return JSON.stringify({include: matrix['region-instance']});
-            id: set-matrix
-        env:
-          GITHUB_ENV: ${{ env.GITHUB_ENV }}
+          matrix_entries="[${matrix_entries%,}]"
+
+          echo "::set-output name=matrix::${matrix_entries}"
+
+  run-ssm-command:
+    needs: setup-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJSON(needs.setup-matrix.outputs.matrix) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -76,9 +70,11 @@ jobs:
         run: |
           region="${{ matrix.region }}"
           instance="${{ matrix.instance }}"
+
           echo "Processing region: $region, instance: $instance"
           max_retries=1
           retries=0
+
           while [ $retries -le $max_retries ]; do
             outputSendCommand=$(aws ssm send-command \
               --instance-ids $instance \
@@ -90,6 +86,7 @@ jobs:
               --max-concurrency "5" \
               --max-errors "2" \
               --query "Command.CommandId" 2>/dev/null)
+
             if [ -n "$outputSendCommand" ]; then
               while true; do
                 STATUS=$(aws ssm list-command-invocations \
@@ -97,6 +94,7 @@ jobs:
                   --command-id "$outputSendCommand" \
                   --query 'CommandInvocations[0].Status' \
                   --output text)
+
                 if [ "$STATUS" == "Success" ]; then
                   echo "Command execution successful in region $region"
                   break 2
@@ -113,6 +111,7 @@ jobs:
               echo "Provided region_name $region doesn't match a supported format."
             fi
           done
+
           if [ $retries -gt $max_retries ]; then
             echo "Maximum number of retries reached for region $region. Exiting."
           fi
