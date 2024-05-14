@@ -24,6 +24,7 @@ jobs:
     strategy:
       matrix:
         region-instance: []
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,21 +34,21 @@ jobs:
         run: |
           IFS=',' read -ra regions <<< "${{ inputs.AWS_REGION }}"
           IFS=',' read -ra instances <<< "${{ inputs.Instance }}"
-
+          
           if [ ${#regions[@]} -ne ${#instances[@]} ]; then
             echo "Error: The number of regions does not match the number of instances."
             exit 1
           fi
-
+          
           matrix_entries=""
-
           for i in "${!regions[@]}"; do
             region="${regions[i]}"
             instance="${instances[i]}"
-            matrix_entries="$matrix_entries\n      - region: $region\n        instance: $instance"
+            matrix_entries="$matrix_entries\n - region: $region\n instance: $instance"
           done
-
-          echo "matrix:region-instance: [$matrix_entries]" >> $GITHUB_ENV
+          
+          echo "matrix:
+          region-instance: [$matrix_entries]" >> $GITHUB_ENV
 
       - name: Set up matrix
         uses: actions/github-script@v6
@@ -57,7 +58,7 @@ jobs:
             const env = fs.readFileSync(process.env.GITHUB_ENV, 'utf8');
             const matrix = JSON.parse(env.split('matrix: ')[1]);
             return JSON.stringify({include: matrix['region-instance']});
-        id: set-matrix
+            id: set-matrix
         env:
           GITHUB_ENV: ${{ env.GITHUB_ENV }}
 
@@ -75,6 +76,43 @@ jobs:
         run: |
           region="${{ matrix.region }}"
           instance="${{ matrix.instance }}"
-
           echo "Processing region: $region, instance: $instance"
-          ./ssmcmd.sh "$region" "$instance" &
+          max_retries=1
+          retries=0
+          while [ $retries -le $max_retries ]; do
+            outputSendCommand=$(aws ssm send-command \
+              --instance-ids $instance \
+              --document-name "AWS-RunShellScript" \
+              --comment "Restart services" \
+              --parameters commands='sudo /usr/local/bin/supervisorctl restart all > ScriptExecLog.txt && sudo systemctl restart cassandra.service > ScriptExecLog1.txt' \
+              --region $region \
+              --output text \
+              --max-concurrency "5" \
+              --max-errors "2" \
+              --query "Command.CommandId" 2>/dev/null)
+            if [ -n "$outputSendCommand" ]; then
+              while true; do
+                STATUS=$(aws ssm list-command-invocations \
+                  --region "$region" \
+                  --command-id "$outputSendCommand" \
+                  --query 'CommandInvocations[0].Status' \
+                  --output text)
+                if [ "$STATUS" == "Success" ]; then
+                  echo "Command execution successful in region $region"
+                  break 2
+                elif [ "$STATUS" == "Failed" ]; then
+                  echo "Command execution failed in region $region"
+                  break 2
+                else
+                  echo "Command status in region $region: $STATUS"
+                  sleep 5
+                fi
+              done
+            else
+              retries=$((retries + 1))
+              echo "Provided region_name $region doesn't match a supported format."
+            fi
+          done
+          if [ $retries -gt $max_retries ]; then
+            echo "Maximum number of retries reached for region $region. Exiting."
+          fi
