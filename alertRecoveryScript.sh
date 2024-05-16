@@ -26,5 +26,5 @@ while true; do
             break
         fi
         sleep 5
-    fia
+    fi
 done
