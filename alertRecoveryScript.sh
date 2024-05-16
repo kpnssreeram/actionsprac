@@ -62,4 +62,4 @@ AWS_REGION="$2"
 Instance="$3"
 DocumentName="AWS-RunShellScript"
 # Call the specified function
-$function_name "$AWS_REGION" "$Instance"
+$function_name "$AWS_REGION" "$Instance" "$DocumentName"
