@@ -49,7 +49,7 @@ jobs:
             region="${regions[i]}"
             instance="${instances[i]}"
             echo "Processing region: $region, instance: $instance"
-            ./alertRecoveryScript.sh "$region" "$instance" &
+            ./alertRecoveryScript.sh "sendssh" "$region" "$instance" &
           done
 
           # Wait for all commands to finish
