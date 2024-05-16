@@ -3,7 +3,7 @@ Instance="$2"
 max_attempts=9  
 attempt_counter=0
 
-outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Run echo command" --parameters commands='sudo /usr/local/bin/supervisorctl restart all> ScriptExecLog.txt & systemctl restart  cassandra.service > ScriptExecLog1.txt' --region $AWS_REGION --output text --query "Command.CommandId")
+outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Run echo command" --parameters commands='sudo /usr/local/bin/supervisorctl restart all> ScriptExecLog.txt & systemctl restart cassandra.service > ScriptExecLog1.txt' --region $AWS_REGION --output text --query "Command.CommandId")
 
 while true; do
     STATUS=$(aws ssm list-command-invocations \
