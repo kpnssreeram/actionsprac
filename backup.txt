@@ -1,111 +1,79 @@
-name: Restart service
-on: 
-  workflow_dispatch:
-      inputs:
-          Universe:
-            type: string
-            required: false
-          AWS_REGION:
-            type: string
-            required: false
-          Instance:
-            type: string
-            required: false
+name: Alert_Recovery_Script_Execution
 
+on:
+  workflow_dispatch:
+    inputs:
+      Universe:
+        type: string
+        required: false
+  
+      AWS_REGION:
+        description: 'AWS Regions (comma-separated)'
+        required: false
+      Instance:
+        description: 'Instance IDs (comma-separated)'
+        required: false
+      
 permissions:
-    id-token: write
-    contents: read
-    actions: read
-                  
+  id-token: write
+  contents: read
+  actions: read
 jobs:
-  deploy-emoji-service:
+  Recovery_workflow:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main repository
-        uses: actions/checkout@v4
-
-      - name: printing
-        run: |
-          echo ${{inputs.Universe}} ${{inputs.AWS_REGION}} ${{inputs.Instance}}
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
             role-to-assume: arn:aws:iam::549050352176:role/TestingDataDog_role
             role-session-name: restartservice
-            aws-region: us-east-1
+            aws-region: eu-west-1
 
-      - name: Printing using sh
+      - name: Make script executable
+        run: chmod +x ./alertRecoveryScript.sh
+
+      - name: Run script
         run: |
-          chmod +x ./ssmcmd.sh
-          ./ssmcmd.sh ${{ inputs.AWS_REGION }} ${{ inputs.Instance }}   
+          # Split the input parameters into arrays without quotes
+          IFS=',' read -ra regions <<< "${{ inputs.AWS_REGION }}"
+          IFS=',' read -ra instances <<< "${{ inputs.Instance }}"
+
+          # Ensure the arrays have the same length
+          if [ ${#regions[@]} -ne ${#instances[@]} ]; then
+            echo "Error: The number of regions does not match the number of instances."
+            exit 1
+          fi
+
+          # Process each region and instance ID pair in parallel
+          for i in "${!regions[@]}"; do
+            region="${regions[i]}"
+            instance="${instances[i]}"
+            echo "Processing region: $region, instance: $instance"
+            ./alertRecoveryScript.sh "sendssh" "$region" "$instance" &
+          done
+
+          # Wait for all commands to finish
+          wait
+   
   
 
-# !/bin/bash
 
-# Parameters
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////  SCRIPT //////////////////////////////////////////////////////////////////
 AWS_REGION="$1"
 Instance="$2"
+max_attempts=9  
+attempt_counter=0
 
-# # Restart services using AWS Systems Manager Run Command
-# COMMAND_OUTPUT=$(aws ssm send-command \
-#     --region "$AWS_REGION" \
-#     --instance-ids "$Instance" \
-#     --document-name "AWS-RunShellScript" \
-#     --parameters '{"commands":["ls"]}' \
-#     --query 'Command.CommandId' \
-#     --output text)
+outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Run echo command" --parameters commands='sudo /usr/local/bin/supervisorctl restart all> ScriptExecLog.txt & systemctl restart cassandra.service > ScriptExecLog1.txt' --region $AWS_REGION --output text --query "Command.CommandId")
 
-# # Check if the command was sent successfully
-# if [ -z "$COMMAND_OUTPUT" ]; then
-#     echo "Failed to send command"
-#     exit 1
-# fi
-
-# # Wait for the command to complete and get the status
-# while true; do
-#     STATUS=$(aws ssm list-command-invocations \
-#         --region "$AWS_REGION" \
-#         --command-id "$COMMAND_OUTPUT" \
-#         --query 'CommandInvocations[0].Status' \
-#         --output text)
-
-#     if [ "$STATUS" == "Success" ]; then
-#         echo "Command execution successful"
-#         break
-#     elif [ "$STATUS" == "Failed" ]; then
-#         echo "Command execution failed"
-#         break
-#     else
-#         echo "Command status: $STATUS"
-#         sleep 5
-#     fi
-# done
-
-# # Get the command output
-# OUTPUT=$(aws ssm get-command-invocation \
-#     --region "$AWS_REGION" \
-#     --command-id "$COMMAND_OUTPUT" \
-#     --instance-id "$Instance" \
-#     --query 'CommandInvocation.CommandPlugins[0].Output' \
-#     --output text)
-
-# echo "Command output:"
-# echo "$OUTPUT"
-
-outputSendCommand=$(aws ssm send-command \
-  --instance-ids "$Instance" \
-  --document-name "AWS-RunShellScript" \
-  --comment "Restart services" \
-  --parameters commands='sudo /usr/local/bin/supervisorctl restart all > ScriptExecLog.txt && sudo systemctl restart cassandra.service > ScriptExecLog1.txt' \
-  --region "$AWS_REGION" \
-  --output text \
-  --max-concurrency "5" \
-  --max-errors "2" \
-  --query "Command.CommandId")
-
-# outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Run echo command" --parameters commands='sudo /usr/local/bin/supervisorctl restart all > ScriptExecLog.txt'  --region $AWS_REGION --output text --query "Command.CommandId")
-executedOutput=$(aws ssm list-command-invocations  --region $AWS_REGION  --command-id "$outputSendCommand" --no-cli-pager --details --output text --query "CommandInvocations[].CommandPlugins[].{Output:Output}")
 while true; do
     STATUS=$(aws ssm list-command-invocations \
         --region "$AWS_REGION" \
@@ -121,6 +89,11 @@ while true; do
         break
     else
         echo "Command status: $STATUS"
+        attempt_counter=$((attempt_counter+1))
+        if [ "$attempt_counter" -ge "$max_attempts" ]; then
+            echo "Maximum attempts reached. Exiting with failure."
+            break
+        fi
         sleep 5
-    fi
+    fia
 done
