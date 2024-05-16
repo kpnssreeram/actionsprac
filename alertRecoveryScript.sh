@@ -4,7 +4,7 @@
 function check_command_status {
     local AWS_REGION="$1"
     local outputSendCommand="$2"
-    local max_attempts=9
+    local max_attempts=18
     local attempt_counter=0
 
     while true; do
