@@ -56,3 +56,10 @@ function another_aws_ssm_command {
     # Call the helper function to check command status
     check_command_status "$AWS_REGION" "$outputSendCommand"
 }
+
+function_name="$1"
+AWS_REGION="$2"
+Instance="$3"
+
+# Call the specified function
+$function_name "$AWS_REGION" "$Instance"
