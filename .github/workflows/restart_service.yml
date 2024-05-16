@@ -1,39 +1,38 @@
-name: Restart service
+name: Alert_Recovery_Script_Execution
 
 on:
   workflow_dispatch:
     inputs:
-      AWS_REGION:
-        description: 'AWS Regions (comma-separated)'
-        required: true
-      Instance:
-        description: 'Instance IDs (comma-separated)'
-        required: true
       Universe:
         type: string
         required: false
-
+  
+      AWS_REGION:
+        description: 'AWS Regions (comma-separated)'
+        required: false
+      Instance:
+        description: 'Instance IDs (comma-separated)'
+        required: false
+      
 permissions:
   id-token: write
   contents: read
   actions: read
 jobs:
-  run-ssm-command:
+  Recovery_workflow:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
             role-to-assume: arn:aws:iam::549050352176:role/TestingDataDog_role
             role-session-name: restartservice
             aws-region: eu-west-1
-      - name: Make ssmcmd.sh executable
-        run: chmod +x ./ssmcmd.sh
 
-      - name: Run SSM Command
+      - name: Make script executable
+        run: chmod +x ./alertRecoveryScript.sh
+
+      - name: Run script
         run: |
           # Split the input parameters into arrays without quotes
           IFS=',' read -ra regions <<< "${{ inputs.AWS_REGION }}"
@@ -50,7 +49,7 @@ jobs:
             region="${regions[i]}"
             instance="${instances[i]}"
             echo "Processing region: $region, instance: $instance"
-            ./ssmcmd.sh "$region" "$instance" 
+            ./alertRecoveryScript.sh "$region" "$instance" 
           done
 
           # Wait for all commands to finish
