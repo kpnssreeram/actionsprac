@@ -60,6 +60,6 @@ function another_aws_ssm_command {
 function_name="$1"
 AWS_REGION="$2"
 Instance="$3"
-DocumentName='TEST'
+DocumentName="AWS-RunShellScript"
 # Call the specified function
 $function_name "$AWS_REGION" "$Instance"
