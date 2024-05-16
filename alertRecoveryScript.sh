@@ -27,7 +27,7 @@ function check_command_status {
                 echo "Maximum attempts reached. Exiting with failure."
                 break
             fi
-            sleep 5
+            sleep 9
         fi
     done
 }
