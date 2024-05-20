@@ -3,10 +3,9 @@ name: Alert_Recovery_Script_Execution
 on:
   workflow_dispatch:
     inputs:
-      Universe:
+      function_name:
         type: string
-        required: false
-  
+        required: true
       AWS_REGION:
         description: 'AWS Regions (comma-separated)'
         required: false
@@ -32,7 +31,7 @@ jobs:
             aws-region: eu-west-1
 
       - name: Make script executable
-        run: chmod +x ./alertRecoveryScript.sh
+        run: chmod +x ./recoveryScripts.sh
 
       - name: Run script
         run: |
@@ -51,7 +50,7 @@ jobs:
             region="${regions[i]}"
             instance="${instances[i]}"
             echo "Processing region: $region, instance: $instance"
-            ./alertRecoveryScript.sh "another_aws_ssm_command" "$region" "$instance" &
+            ./recoveryScripts.sh "another_aws_ssm_command" "$region" "$instance" &
           done
 
           # Wait for all commands to finish

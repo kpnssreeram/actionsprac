@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Helper function to check command status
 function check_command_status {
     local AWS_REGION="$1"
     local outputSendCommand="$2"
@@ -32,14 +31,12 @@ function check_command_status {
     done
 }
 
-# Function to execute the SSM command to restart services
-function execute_aws_ssm_command {
+function restartAllServices {
     local AWS_REGION="$1"
     local Instance="$2"
 
-    local outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Run echo command" --parameters commands='sudo /usr/local/bin/supervisorctl restart all > ScriptExecLog.txt & systemctl restart cassandra.service > ScriptExecLog1.txt' --region "$AWS_REGION" --output text --query "Command.CommandId")
+    local outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Restarting Services" --parameters commands='sudo /usr/local/bin/supervisorctl restart all > ScriptExecLog.txt & systemctl restart cassandra.service > ScriptExecLog1.txt' --region "$AWS_REGION" --output text --query "Command.CommandId")
 
-    # Call the helper function to check command status
     check_command_status "$AWS_REGION" "$outputSendCommand"
 }
 
@@ -49,7 +46,7 @@ function execute_aws_ssm_command {
 function another_aws_ssm_command {
     local AWS_REGION="$1"
     local Instance="$2"
-    DocumentName="AWS-RunShellScript"
+    local DocumentName="$3"
 
     local outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "$DocumentName" --comment "Run custom command" --parameters commands='ls' --region "$AWS_REGION" --output text --query "Command.CommandId")
 
