@@ -14,6 +14,7 @@ on:
         required: false
       cluster:
         description: 'Enter value of cluster'
+        default: null
         required: false
       env:
         description: 'Enter value of cluster'
