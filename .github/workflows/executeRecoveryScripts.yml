@@ -12,6 +12,14 @@ on:
       Instance:
         description: 'Instance IDs (comma-separated)'
         required: false
+      cluster:
+        description: 'Enter value of cluster'
+        required: false
+      env:
+        description: 'Enter value of cluster'
+        required: false
+
+
       
 permissions:
   id-token: write
@@ -50,7 +58,7 @@ jobs:
             region="${regions[i]}"
             instance="${instances[i]}"
             echo "Processing region: $region, instance: $instance"
-            ./recoveryScripts.sh "${{inputs.function_name}}" "$region" "$instance" &
+            ./recoveryScripts.sh "${{inputs.function_name}}" "$region" "$instance" "${{inputs.cluster}}" "${{inputs.env}}" &
           done
 
           # Wait for all commands to finish
