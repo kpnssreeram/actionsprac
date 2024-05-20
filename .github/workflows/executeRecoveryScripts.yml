@@ -17,11 +17,11 @@ on:
         default: null
         required: false
       env:
-        description: 'Enter value of cluster'
+        description: 'Enter value of env '
+        default: null
         required: false
 
 
-      
 permissions:
   id-token: write
   contents: read
