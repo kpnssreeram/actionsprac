@@ -34,15 +34,15 @@ function check_command_status {
 function restartAllServices {
     local AWS_REGION="$1"
     local Instance="$2"
-    local outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Restarting Services" --parameters commands='sudo /usr/local/bin/supervisorctl restart all > ScriptExecLog.txt & systemctl restart cassandra.service > ScriptExecLog1.txt' --region "$AWS_REGION" --output text --query "Command.CommandId")
+    local outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Restart Services" --parameters commands='sudo /usr/local/bin/supervisorctl restart all > ScriptExecLog.txt & systemctl restart cassandra.service > ScriptExecLog1.txt' --region "$AWS_REGION" --output text --query "Command.CommandId")
     check_command_status "$AWS_REGION" "$outputSendCommand"
 }
 
-function another_aws_ssm_command {
+function updateEcsService {
     local AWS_REGION="$1"
     local Instance="$2"
     local DocumentName="$3"
-    local outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "$DocumentName" --comment "Run custom command" --parameters commands='ls' --region "$AWS_REGION" --output text --query "Command.CommandId")
+    local outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "$DocumentName" --comment "Update Ecs Service" --parameters commands='ls' --region "$AWS_REGION" --output text --query "Command.CommandId")
     check_command_status "$AWS_REGION" "$outputSendCommand"
 }
 
