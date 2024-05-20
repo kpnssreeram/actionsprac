@@ -34,23 +34,15 @@ function check_command_status {
 function restartAllServices {
     local AWS_REGION="$1"
     local Instance="$2"
-
     local outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "AWS-RunShellScript" --comment "Restarting Services" --parameters commands='sudo /usr/local/bin/supervisorctl restart all > ScriptExecLog.txt & systemctl restart cassandra.service > ScriptExecLog1.txt' --region "$AWS_REGION" --output text --query "Command.CommandId")
-
     check_command_status "$AWS_REGION" "$outputSendCommand"
 }
 
-# Add more functions here as needed, each with its own parameters and logic
-
-# Example function with different parameters
 function another_aws_ssm_command {
     local AWS_REGION="$1"
     local Instance="$2"
     local DocumentName="$3"
-
     local outputSendCommand=$(aws ssm send-command --instance-ids "$Instance" --document-name "$DocumentName" --comment "Run custom command" --parameters commands='ls' --region "$AWS_REGION" --output text --query "Command.CommandId")
-
-    # Call the helper function to check command status
     check_command_status "$AWS_REGION" "$outputSendCommand"
 }
 
@@ -58,5 +50,11 @@ function_name="$1"
 AWS_REGION="$2"
 Instance="$3"
 
-# Call the specified function
-$function_name "$AWS_REGION" "$Instance"
+# Call the respective function
+if [ "$function_name" == "restartAllServices" ]; then
+    restartAllServices "$AWS_REGION" "$Instance"
+elif [ "$function_name" == "another_aws_ssm_command" ]; then
+    another_aws_ssm_command "$AWS_REGION" "$Instance" "AWS-RunShellScript"
+else
+    echo "Invalid function name provided."
+fi

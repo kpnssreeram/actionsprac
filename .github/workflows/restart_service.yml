@@ -50,7 +50,7 @@ jobs:
             region="${regions[i]}"
             instance="${instances[i]}"
             echo "Processing region: $region, instance: $instance"
-            ./recoveryScripts.sh "another_aws_ssm_command" "$region" "$instance" &
+            ./recoveryScripts.sh "${{inputs.function_name}}" "$region" "$instance" &
           done
 
           # Wait for all commands to finish
