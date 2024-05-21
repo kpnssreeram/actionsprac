@@ -1,5 +1,4 @@
 #!/bin/bash
-
 function check_command_status {
     local AWS_REGION="$1"
     local outputSendCommand="$2"
@@ -23,7 +22,7 @@ function check_command_status {
             echo "Command status: $STATUS"
             attempt_counter=$((attempt_counter+1))
             if [ "$attempt_counter" -ge "$max_attempts" ]; then
-                echo "Maximum attempts reached. Exiting with failure."
+                echo "Maximum attempts reached. execution may or may not be successful.Please check logs or run this script again."
                 break
             fi
             sleep 9
@@ -31,6 +30,24 @@ function check_command_status {
     done
 }
 
+function check_ecs_service_update {
+    local cluster="$1"
+    local service="$2"
+
+    while true; do
+        local service_status=$(aws ecs describe-services --cluster "$cluster" --services "$service" --query 'services[0].deployments[0].status' --output text)
+        if [ "$service_status" == "PRIMARY" ]; then
+            echo "ECS service update successful"
+            break
+        elif [ "$service_status" == "IN_PROGRESS" ]; then
+            echo "ECS service update status: $service_status"
+        else
+            echo "ECS service update failed with status: $service_status"
+            exit 1
+        fi
+        sleep 10
+    done
+}
 function restartAllServices {
     local AWS_REGION="$1"
     local Instance="$2"
@@ -40,31 +57,27 @@ function restartAllServices {
 
 function updateEcsService {
     REGION="$1"
-    CLUSTER_NAME_PREFIX="anon-megabus-app-EcsCluster"
+    cluster_name_prefix="anon-megabus-app-EcsCluster"
 
-    SERVICE_ARNS=$(aws ecs list-clusters --region "$REGION" --query "clusterArns[?contains(@, '$CLUSTER_NAME_PREFIX')]" --output text | xargs -I{} aws ecs list-services --region "$REGION" --cluster {} --query 'serviceArns[*]' --output text)
-    echo "$SERVICE_ARNS"
-    for SERVICE_ARN in $SERVICE_ARNS; do
-        CLUSTER_NAME=$(echo "$SERVICE_ARN" | awk -F '/' '{print $2}')
-        SERVICE_NAME=$(echo "$SERVICE_ARN" | awk -F '/' '{print $3}')
-        #TASK_DEFINITION_ARN=$(aws ecs describe-services --region "$REGION" --cluster "$CLUSTER_NAME" --services "$SERVICE_NAME" --query 'services[0].taskDefinition' --output text)
-        #echo "$TASK_DEFINITION_ARN"
-        #aws ecs update-service --region "$REGION" --cluster "$CLUSTER_NAME" --service "$SERVICE_NAME" --force-new-deployment --task-definition "$TASK_DEFINITION_ARN"
-        aws ecs update-service --cluster "$CLUSTER_NAME" --region "$REGION" --service "$SERVICE_NAME" --force-new-deployment
-
+    serviceARN=$(aws ecs list-clusters --region "$REGION" --query "clusterArns[?contains(@, '$cluster_name_prefix')]" --output text | xargs -I{} aws ecs list-services --region "$REGION" --cluster {} --query 'serviceArns[*]')
+    echo "$serviceARN"
+    for arn in $serviceARN; do
+        cluster_name=$(echo "$arn" | awk -F '/' '{print $2}')
+        service_name=$(echo "$arn" | awk -F '/' '{print $3}')
+        aws ecs update-service --cluster "$cluster_name" --region "$REGION" --service "$service_name" --force-new-deployment
         if [ $? -eq 0 ]; then
-            echo "Service $SERVICE_NAME updated with a new force deployment."
+            echo "Service $service_name updated with a new force deployment."
         else
-            echo "Failed to update service $SERVICE_NAME"
-            echo "Failed to update cluster $CLUSTER_NAME"
+            echo "Failed to update service $service_name"
         fi
     done
+    check_ecs_service_update "$cluster_name" "$service_name"
 }
 
 function_name="$1"
 AWS_REGION="$2"
 Instance="$3"
-cluster_name="$4"
+cluster_id="$4"
 env="$5"
 # Call the respective function
 if [ "$function_name" == "restartAllServices" ]; then
