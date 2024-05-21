@@ -57,7 +57,6 @@ AWS_REGION="$2"
 Instance="$3"
 cluster_id="$4"
 env="$5"
-# Call the respective function
 if [ "$function_name" == "restartAllServices" ]; then
     restartAllServices "$AWS_REGION" "$Instance"
 elif [ "$function_name" == "updateEcsService" ]; then
