@@ -59,7 +59,7 @@ function updateEcsService {
     REGION="$1"
     cluster_name_prefix="anon-megabus-app-EcsCluster"
 
-    serviceARN=$(aws ecs list-clusters --region "$REGION" --query "clusterArns[?contains(@, '$cluster_name_prefix')]" --output text | xargs -I{} aws ecs list-services --region "$REGION" --cluster {} --query 'serviceArns[*]')
+    serviceARN=$(aws ecs list-clusters --region "$REGION" --query "clusterArns[?contains(@, '$cluster_name_prefix')]" --output text | xargs -I{} aws ecs list-services --region "$REGION" --cluster {} --query 'serviceArns[*]' --output text)
     echo "$serviceARN"
     for arn in $serviceARN; do
         cluster_name=$(echo "$arn" | awk -F '/' '{print $2}')
