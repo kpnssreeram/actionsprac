@@ -50,7 +50,7 @@ function updateEcsService {
         #TASK_DEFINITION_ARN=$(aws ecs describe-services --region "$REGION" --cluster "$CLUSTER_NAME" --services "$SERVICE_NAME" --query 'services[0].taskDefinition' --output text)
         #echo "$TASK_DEFINITION_ARN"
         #aws ecs update-service --region "$REGION" --cluster "$CLUSTER_NAME" --service "$SERVICE_NAME" --force-new-deployment --task-definition "$TASK_DEFINITION_ARN"
-        aws ecs update-service --cluster "$CLUSTER_NAME" --service "$SERVICE_NAME" --force-new-deployment
+        aws ecs update-service --cluster "$CLUSTER_NAME" --region "$REGION" --service "$SERVICE_NAME" --force-new-deployment
 
         if [ $? -eq 0 ]; then
             echo "Service $SERVICE_NAME updated with a new force deployment."
