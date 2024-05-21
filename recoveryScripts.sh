@@ -40,7 +40,7 @@ function restartAllServices {
 
 function updateEcsService {
     REGION="$1"
-    CLUSTER_NAME_PREFIX="$2"
+    CLUSTER_NAME_PREFIX="anon-megabus-app-EcsCluster"
 
     SERVICE_ARNS=$(aws ecs list-clusters --region "$REGION" --query "clusterArns[?contains(@, '$CLUSTER_NAME_PREFIX')]" --output text | xargs -I{} aws ecs list-services --region "$REGION" --cluster {} --query 'serviceArns[*]' --output text)
 
