@@ -46,7 +46,7 @@ function updateEcsService {
     echo "$SERVICE_ARNS"
     for SERVICE_ARN in $SERVICE_ARNS; do
         CLUSTER_NAME=$(echo "$SERVICE_ARN" | awk -F/ '{print $4}')
-        SERVICE_NAME=$(echo "$SERVICE_ARN" | awk -F/ '{print $1}')
+        SERVICE_NAME=$(echo "$SERVICE_ARN" | awk -F/ '{print $2}')
         #TASK_DEFINITION_ARN=$(aws ecs describe-services --region "$REGION" --cluster "$CLUSTER_NAME" --services "$SERVICE_NAME" --query 'services[0].taskDefinition' --output text)
         #echo "$TASK_DEFINITION_ARN"
         #aws ecs update-service --region "$REGION" --cluster "$CLUSTER_NAME" --service "$SERVICE_NAME" --force-new-deployment --task-definition "$TASK_DEFINITION_ARN"
@@ -56,6 +56,7 @@ function updateEcsService {
             echo "Service $SERVICE_NAME updated with a new force deployment."
         else
             echo "Failed to update service $SERVICE_NAME."
+            echo "Failed to update cluster $CLUSTER_NAME."
         fi
     done
 }
