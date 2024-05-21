@@ -65,12 +65,12 @@ function updateEcsService {
         cluster_name=$(echo "$arn" | awk -F '/' '{print $2}')
         service_name=$(echo "$arn" | awk -F '/' '{print $3}')
         aws ecs update-service --cluster "$cluster_name" --region "$REGION" --service "$service_name" --force-new-deployment
-        if [ $? -eq 0 ]; then
-            echo "Service $service_name updated with a new force deployment."
-        else
-            echo "Failed to update service $service_name"
-        fi
-    done
+    #     if [ $? -eq 0 ]; then
+    #         echo "Service $service_name updated with a new force deployment."
+    #     else
+    #         echo "Failed to update service $service_name"
+    #     fi
+    # done
     check_ecs_service_update "$cluster_name" "$service_name"
 }
 
