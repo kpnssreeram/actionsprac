@@ -37,7 +37,7 @@ jobs:
         with:
             role-to-assume: arn:aws:iam::549050352176:role/TestingDataDog_role
             role-session-name: restartservice
-            aws-region: eu-west-1
+            aws-region: us-east-1
 
       - name: Make script executable
         run: chmod +x ./recoveryScripts.sh
