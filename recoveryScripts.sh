@@ -49,8 +49,7 @@ function updateEcsService {
         else
             echo "Failed to update service $service_name"
         fi
-     done
-    
+     done  
 }
 
 function_name="$1"
