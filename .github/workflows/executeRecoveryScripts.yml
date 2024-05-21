@@ -49,10 +49,10 @@ jobs:
           IFS=',' read -ra instances <<< "${{ inputs.Instance }}"
 
           # Ensure the arrays have the same length
-          if [ ${#regions[@]} -ne ${#instances[@]} ]; then
-            echo "Error: The number of regions does not match the number of instances."
-            exit 1
-          fi
+          # if [ ${#regions[@]} -ne ${#instances[@]} ]; then
+          #   echo "Error: The number of regions does not match the number of instances."
+          #   exit 1
+          # fi
 
           # Process each region and instance ID pair in parallel
           for i in "${!regions[@]}"; do
