@@ -17,7 +17,7 @@ on:
         default: null
         required: false
       env:
-        description: 'Enter value of env '
+        description: 'Enter value of env'
         default: null
         required: false
 
