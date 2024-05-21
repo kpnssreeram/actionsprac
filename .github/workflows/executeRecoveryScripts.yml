@@ -54,7 +54,6 @@ jobs:
           #   exit 1
           # fi
 
-          # Process each region and instance ID pair in parallel
           for i in "${!regions[@]}"; do
             region="${regions[i]}"
             instance="${instances[i]}"
