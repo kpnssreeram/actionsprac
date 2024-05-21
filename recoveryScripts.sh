@@ -69,7 +69,7 @@ env="$5"
 if [ "$function_name" == "restartAllServices" ]; then
     restartAllServices "$AWS_REGION" "$Instance"
 elif [ "$function_name" == "updateEcsService" ]; then
-    updateEcsService "$AWS_REGION"  "AWS-RunShellScript"
+    updateEcsService "$AWS_REGION"  
 else
     echo "Invalid function name provided."
 fi
