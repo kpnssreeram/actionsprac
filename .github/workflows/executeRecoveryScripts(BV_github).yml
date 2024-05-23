@@ -31,13 +31,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout repository with library file
+        uses: actions/checkout@v4
+        with:
+            repository: bvengineering/ActionsLibraryHub
+            ref: main
+            path: LibraryHub
+            token: ${{secrets.TOKEN }} # Token needs to be added to the repository that has been created
+
+      - name: Fetch data
+        run: |
+            label=$(python ./LibraryHub/EmodbLib.py getVpcByUniverse "${{inputs.env}}")
+            account_id=$(python ./LibraryHub/EmodbLib.py getAccountIdByUniverse "${{inputs.env}}")
+            echo "EnvTag=$label" >> $GITHUB_ENV;echo "AccId=$account_id" >> $GITHUB_ENV
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-            role-to-assume: arn:aws:iam::549050352176:role/TestingDataDog_role
-            role-session-name: restartservice
-            aws-region: us-east-1
+            role-to-assume: arn:aws:iam::${{env.AccId}}:role/deployCFNResource #if possible create new IAM Role and replace here
+            role-session-name: recoveryScriptSession
+            aws-region: ${{ inputs.AWS_REGION }}
 
       - name: Make script executable
         run: chmod +x ./recoveryScripts.sh
@@ -47,12 +60,6 @@ jobs:
           # Split the input parameters into arrays without quotes
           IFS=',' read -ra regions <<< "${{ inputs.AWS_REGION }}"
           IFS=',' read -ra instances <<< "${{ inputs.Instance }}"
-
-          # Ensure the arrays have the same length
-          # if [ ${#regions[@]} -ne ${#instances[@]} ]; then
-          #   echo "Error: The number of regions does not match the number of instances."
-          #   exit 1
-          # fi
 
           for i in "${!regions[@]}"; do
             region="${regions[i]}"
