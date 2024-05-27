@@ -21,7 +21,6 @@ on:
         default: null
         required: false
 
-
 permissions:
   id-token: write
   contents: read
