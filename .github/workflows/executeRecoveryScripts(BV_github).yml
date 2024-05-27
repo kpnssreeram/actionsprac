@@ -67,5 +67,5 @@ jobs:
             echo "Executing ${{inputs.function_name}}"
             ./recoveryScripts.sh "${{inputs.function_name}}" "$region" "$instance" "${{inputs.cluster}}" "${{inputs.env}}" &
           done
-          
+
           wait
