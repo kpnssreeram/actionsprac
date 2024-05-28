@@ -38,7 +38,9 @@ function restartAllServices {
 
 function updateEcsService {
     REGION="$1"
-    cluster_name_prefix="anon-megabus-app-EcsCluster"
+    ENV="$2"
+    CLUSTER="$3"
+    cluster_name_prefix="$ENV-etl-$CLUSTER-app-EcsCluster"
     serviceARN=$(aws ecs list-clusters --region "$REGION" --query "clusterArns[?contains(@, '$cluster_name_prefix')]" --output text | xargs -I{} aws ecs list-services --region "$REGION" --cluster {} --query 'serviceArns[*]' --output text)
     for arn in $serviceARN; do
         cluster_name=$(echo "$arn" | awk -F '/' '{print $2}')
@@ -60,7 +62,7 @@ env="$5"
 if [ "$function_name" == "restartAllServices" ]; then
     restartAllServices "$AWS_REGION" "$Instance"
 elif [ "$function_name" == "updateEcsService" ]; then
-    updateEcsService "$AWS_REGION"  
+    updateEcsService "$AWS_REGION" "$env" "$cluster_id"
 else
     echo "Invalid function name provided."
 fi
