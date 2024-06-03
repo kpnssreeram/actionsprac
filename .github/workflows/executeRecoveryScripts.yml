@@ -38,6 +38,15 @@ jobs:
             role-session-name: restartservice
             aws-region: us-east-1
 
+      - name: print inputs
+        run: |
+          echo "function_name is ${{ inputs.function_name }}"
+          echo "region is ${{ inputs.AWS_REGION }}"
+          echo "instance is ${{ inputs.Instance }}"
+          echo "cluster is ${{ inputs.cluster }}"
+          echo "env is ${{ inputs.env }}"
+          
+
       - name: Make script executable
         run: chmod +x ./recoveryScripts.sh
 
