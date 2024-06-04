@@ -21,16 +21,16 @@ on:
         default: null
         required: false
         
-concurrency:
-  group: Alert_Recovery_Script_Execution
-  cancel-in-progress: false
-
 permissions:
   id-token: write
   contents: read
   actions: read
 jobs:
   Recovery_workflow:
+    concurrency:
+      group: Alert_Recovery_Script_Execution
+      cancel-in-progress: false
+      
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
