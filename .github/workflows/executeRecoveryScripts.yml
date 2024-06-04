@@ -28,9 +28,9 @@ permissions:
 jobs:
   Recovery_workflow:
     concurrency:
-      group: Alert_Recovery_Script_Execution
+      group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: false
-      
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
