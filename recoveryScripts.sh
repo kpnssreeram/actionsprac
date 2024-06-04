@@ -42,17 +42,35 @@ function updateEcsService {
     CLUSTER="$3"
     cluster_name_prefix="$ENV-etl-$CLUSTER-app-EcsCluster"
     serviceARN=$(aws ecs list-clusters --region "$REGION" --query "clusterArns[?contains(@, '$cluster_name_prefix')]" --output text | xargs -I{} aws ecs list-services --region "$REGION" --cluster {} --query 'serviceArns[*]' --output text)
+    
     for arn in $serviceARN; do
         cluster_name=$(echo "$arn" | awk -F '/' '{print $2}')
         service_name=$(echo "$arn" | awk -F '/' '{print $3}')
+
         aws ecs update-service --cluster "$cluster_name" --region "$REGION" --service "$service_name" --force-new-deployment
         if [ $? -eq 0 ]; then
-            echo "Service $service_name updated with a new force deployment."
+            echo "Service $service_name update triggered successfully. Waiting for deployment to complete..."
         else
-            echo "Failed to update service $service_name"
+            echo "Failed to trigger update for service $service_name."
+            continue
         fi
-     done  
+
+        while true; do
+            deployment_status=$(aws ecs describe-services --cluster "$cluster_name" --region "$REGION" --services "$service_name" --query 'services[0].deployments[?status==`PRIMARY`].rolloutState' --output text)
+            if [ "$deployment_status" == "COMPLETED" ]; then
+                echo "Service $service_name has been updated successfully."
+                break
+            elif [ "$deployment_status" == "FAILED" ]; then
+                echo "Service $service_name update failed."
+                break
+            else
+                echo "Waiting for service $service_name update to complete..."
+                sleep 30 
+            fi
+        done
+    done  
 }
+
 
 function_name="$1"
 AWS_REGION="$2"
