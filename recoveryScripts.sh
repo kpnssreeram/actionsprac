@@ -71,7 +71,6 @@ function updateEcsService {
     done  
 }
 
-
 function_name="$1"
 AWS_REGION="$2"
 Instance="$3"
