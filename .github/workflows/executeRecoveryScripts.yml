@@ -20,6 +20,10 @@ on:
         description: 'Enter value of env'
         default: null
         required: false
+        
+concurrency:
+  group: Alert_Recovery_Script_Execution
+  cancel-in-progress: false
 
 permissions:
   id-token: write
