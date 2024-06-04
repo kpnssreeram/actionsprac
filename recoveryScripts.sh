@@ -81,13 +81,7 @@ AWS_REGION="$2"
 Instance="$3"
 cluster_id="$4"
 env="$5"
-
-# Determine the AWS profile based on the environment
-if [[ "$env" == "ci" || "$env" == "cert" || "$env" == "anon" ]]; then
-    AWS_PROFILE="emodb-nexus-qa"
-else
-    AWS_PROFILE="emodb-nexus-prod"
-fi
+AWS_PROFILE="emodb-nexus-qa"
 
 if [ "$function_name" == "restartAllServices" ]; then
     restartAllServices "$AWS_REGION" "$Instance" "$AWS_PROFILE"
