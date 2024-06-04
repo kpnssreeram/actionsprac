@@ -81,7 +81,7 @@ AWS_REGION="$2"
 Instance="$3"
 cluster_id="$4"
 env="$5"
-AWS_PROFILE="emodb-nexus-qa"
+AWS_PROFILE="prr-nexus-qa"
 
 if [ "$function_name" == "restartAllServices" ]; then
     restartAllServices "$AWS_REGION" "$Instance" "$AWS_PROFILE"
