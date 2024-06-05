@@ -10,19 +10,26 @@ on:
       monitor:
           type: string
           required: false
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}
+#   cancel-in-progress: false
+
 permissions:
   id-token: write
   contents: read
   actions: read
 jobs:
   test:
-    strategy:
-      max-parallel: 5
     runs-on: ubuntu-latest
     steps:
+    - name: Turnstyle
+      uses: softprops/turnstyle@v1
+      with:
+        poll-interval-seconds: 10
+        resource: ${{ github.workflow }}-${{ github.ref }}
+        max-concurrent: 5
+        
     - name: Checkout main repository
       uses: actions/checkout@v4
 
