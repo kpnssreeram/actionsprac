@@ -29,7 +29,7 @@ jobs:
   Recovery_workflow:
 
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-${{ github.run_id }}
+      group: Alert_Recovery_Script_Execution-${{ github.run_id }}
       cancel-in-progress: false
 
     runs-on: ubuntu-latest
