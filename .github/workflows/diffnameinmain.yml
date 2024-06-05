@@ -12,16 +12,16 @@ on:
           required: false
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 permissions:
   id-token: write
   contents: read
   actions: read
 jobs:
   test:
-    runs-on: ubuntu-latest
     strategy:
       max-parallel: 5
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout main repository
       uses: actions/checkout@v4
