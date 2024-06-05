@@ -28,8 +28,7 @@ jobs:
       with:
         poll-interval-seconds: 10
         resource: ${{ github.workflow }}-${{ github.ref }}
-        max-concurrent: 5
-        
+
     - name: Checkout main repository
       uses: actions/checkout@v4
 
