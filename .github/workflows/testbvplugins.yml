@@ -3,7 +3,10 @@ on:
   push:
     branches:
       - main
-                  
+
+permissions:
+  contents: read
+  statuses: write                  
 jobs:
   Run_Job:
     runs-on: ubuntu-latest
