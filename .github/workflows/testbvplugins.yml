@@ -25,24 +25,25 @@ jobs:
         with:
             maven-version: '3.6.3'
 
-      # - name: Maven check
-      #   run: |
-      #       '''mvn -e verify -Ddependency-check.skip=true'''
+      - name: Maven check
+        run: |
+            mvn -e verify -Ddependency-check.skip=true
 
       - name: Set GitHub Commit Status
         if: always()
         uses: actions/github-script@v6
         with:
           script: |
-            const { ${{github.GITHUB_REPOSITORY}}, ${{github.GITHUB_SHA}}, ${{github.GITHUB_RUN_ID}}, ${{github.GITHUB_SERVER_URL}}} = process.env;
-            const state = core.getInput('${{github.event_name}}') === 'push' ? 'success' : 'failure';
+            const { context } = require('@actions/github');
+            const { GITHUB_RUN_ID, GITHUB_SERVER_URL } = process.env;
+            const state = context.workflow_run.conclusion === 'success' ? 'success' : 'failure';
             const description = state === 'success' ? 'Build succeeded' : 'Build failed';
-            await ${{github.rest.repos.createCommitStatus}}({
-              owner: ${{github.GITHUB_REPOSITORY}}.split('/')[0],
-              repo: ${{github.GITHUB_REPOSITORY}}.split('/')[1],
-              sha: ${{github.GITHUB_SHA}},
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
               state: state,
-              target_url: `${{github.GITHUB_SERVER_URL}}/${{github.GITHUB_REPOSITORY}}/actions/runs/${{github.GITHUB_RUN_ID}}`,
+              target_url: `${GITHUB_SERVER_URL}/${context.repo.owner}/${context.repo.repo}/actions/runs/${GITHUB_RUN_ID}`,
               description: description,
               context: 'ci/github-actions/build-status'
             });
