@@ -34,10 +34,10 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const { GITHUB_REPOSITORY, GITHUB_SHA, GITHUB_RUN_ID, GITHUB_SERVER_URL } = process.env;
-            const state = core.getInput('github.event_name') === 'push' ? 'success' : 'failure';
+            const { ${{github.GITHUB_REPOSITORY}}, ${{github.GITHUB_SHA}}, ${{github.GITHUB_RUN_ID}}, ${{github.GITHUB_SERVER_URL}} = process.env;
+            const state = core.getInput('${{github.event_name}}') === 'push' ? 'success' : 'failure';
             const description = state === 'success' ? 'Build succeeded' : 'Build failed';
-            await github.rest.repos.createCommitStatus({
+            await ${{github.rest.repos.createCommitStatus}}({
               owner: GITHUB_REPOSITORY.split('/')[0],
               repo: GITHUB_REPOSITORY.split('/')[1],
               sha: GITHUB_SHA,
