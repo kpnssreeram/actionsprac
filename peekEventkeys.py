@@ -129,5 +129,4 @@ while time.time() - start_time < time_to_run:
         print("Error: Failed to fetch data from the API.")
     time.sleep(30)
 
-
-    
+      
