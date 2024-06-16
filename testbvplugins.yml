@@ -1,0 +1,62 @@
+name: bv-plugins-actions
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+                  
+jobs:
+  Run Job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+            java-version: '11'
+            distribution: 'temurin'
+
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v4
+        with:
+            maven-version: '3.6.3'
+
+      # - name: Maven check
+      #   run: |
+      #       '''mvn -e verify -Ddependency-check.skip=true'''
+
+      - name: Set GitHub Commit Status - Success
+        if: success()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { GITHUB_REPOSITORY, GITHUB_SHA } = process.env;
+            await github.repos.createCommitStatus({
+              owner: GITHUB_REPOSITORY.split('/')[0],
+              repo: GITHUB_REPOSITORY.split('/')[1],
+              sha: GITHUB_SHA,
+              state: 'success',
+              target_url: `${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`,
+              description: 'Build succeeded',
+              context: 'ci/github-actions/build-status'
+            });
+
+      - name: Set GitHub Commit Status - Failed
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { GITHUB_REPOSITORY, GITHUB_SHA } = process.env;
+            await github.repos.createCommitStatus({
+              owner: GITHUB_REPOSITORY.split('/')[0],
+              repo: GITHUB_REPOSITORY.split('/')[1],
+              sha: GITHUB_SHA,
+              state: 'failure',
+              target_url: `${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`,
+              description: 'Build failed',
+              context: 'ci/github-actions/build-status'
+            });
