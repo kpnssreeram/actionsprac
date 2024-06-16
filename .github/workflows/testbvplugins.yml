@@ -38,9 +38,9 @@ jobs:
             const state = core.getInput('${{github.event_name}}') === 'push' ? 'success' : 'failure';
             const description = state === 'success' ? 'Build succeeded' : 'Build failed';
             await ${{github.rest.repos.createCommitStatus}}({
-              owner: GITHUB_REPOSITORY.split('/')[0],
-              repo: GITHUB_REPOSITORY.split('/')[1],
-              sha: GITHUB_SHA,
+              owner: ${{github.GITHUB_REPOSITORY}}.split('/')[0],
+              repo: ${{github.GITHUB_REPOSITORY}}.split('/')[1],
+              sha: ${{github.GITHUB_SHA}},
               state: state,
               target_url: `${{github.GITHUB_SERVER_URL}}/${{github.GITHUB_REPOSITORY}}/actions/runs/${{github.GITHUB_RUN_ID}}`,
               description: description,
