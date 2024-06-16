@@ -8,7 +8,7 @@ on:
       - main
                   
 jobs:
-  Run Job:
+  Run_Job:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
