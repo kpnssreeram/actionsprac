@@ -41,5 +41,5 @@ jobs:
       - name: Run script
         run: |
             echo "Executing ShovelAck script"
-            ./recoveryScripts.sh "${{inputs.function_name}}" "$region" &
+            ./recoveryScripts.sh "${{inputs.function_name}}" "${{inputs.AWS_REGION}}" &
             wait
