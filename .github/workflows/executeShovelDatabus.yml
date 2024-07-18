@@ -27,7 +27,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
             role-to-assume: arn:aws:iam::468552248569:role/TestingDataDog_role
-            role-session-name: restartservice
+            role-session-name: ExceutePythonscript
             aws-region: us-east-1
 
       - name: print inputs
