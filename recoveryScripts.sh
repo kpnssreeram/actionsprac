@@ -59,7 +59,7 @@ function runShovelAckScript {
         echo "Command to run /shovel/shovelack.py sent to instance $Instance with Command ID: $CommandId."
 
         # Check command status
-        checkCommandStatus "$AWS_REGION" "$CommandId"
+        check_command_status "$AWS_REGION" "$CommandId"
     done
 }
 
