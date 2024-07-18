@@ -47,7 +47,7 @@ function runShovelAckScript {
 
     for Instance in "${Instances[@]}"; do
         # Send the command and capture the Command ID
-        CommandId=$(aws ssm send-command \
+        local CommandId=$(aws ssm send-command \
             --instance-ids "$Instance" \
             --document-name "AWS-RunShellScript" \
             --comment "Run Python Script" \
@@ -55,11 +55,8 @@ function runShovelAckScript {
             --region "$AWS_REGION" \
             --query "Command.CommandId" \
             --output text)
-
-        echo "Command to run /shovel/shovelack.py sent to instance $Instance with Command ID: $CommandId."
-
-        # Check command status
         check_command_status "$AWS_REGION" "$CommandId"
+        echo "Command to run /shovel/shovelack.py sent to instance $Instance with Command ID: $CommandId."
     done
 }
 
