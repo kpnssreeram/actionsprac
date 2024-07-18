@@ -51,7 +51,7 @@ function runShovelAckScript {
             --instance-ids "$Instance" \
             --document-name "AWS-RunShellScript" \
             --comment "Run Python Script" \
-            --parameters commands='sudo su - & nohup python3 /shovel/shovelack.py > /shovel/output.log 2>&1 &' \
+            --parameters commands='sudo su - & cd shovel & touch p.py' \
             --region "$AWS_REGION" \
             --query "Command.CommandId" \
             --output text)
