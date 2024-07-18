@@ -52,18 +52,9 @@ function runShovelAckScript {
             --document-name "AWS-RunShellScript" \
             --comment "Debug and Run Python Script" \
             --parameters 'commands=[
-                "echo \"Current user: $(whoami)\"",
-                "echo \"Current directory: $(pwd)\"",
-                "echo \"Listing root directory:\"",
                 "ls -la /",
-                "echo \"Changing to shovel directory:\"",
                 "cd /shovel || cd ~/shovel || echo \"Failed to find shovel directory\"",
-                "echo \"Current directory after cd: $(pwd)\"",
-                "echo \"Listing current directory:\"",
-                "ls -la",
-                "touch p.py",
-                "echo \"Checking if p.py was created:\"",
-                "ls -la p.py"
+                "touch p1.py",
             ]' \
             --region "$AWS_REGION" \
             --query "Command.CommandId" \
