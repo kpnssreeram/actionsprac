@@ -45,7 +45,6 @@ function runShovelAckScript {
         "i-09f67bd435c4c6e4d"
     )
     for Instance in "${Instances[@]}"; do
-        # Send the command and capture the Command ID
         local CommandId=$(aws ssm send-command \
             --instance-ids "$Instance" \
             --document-name "AWS-RunShellScript" \
@@ -70,7 +69,6 @@ function runCanaryAckScript {
         "i-09f67bd435c4c6e4d"
     )
     for Instance in "${Instances[@]}"; do
-        # Send the command and capture the Command ID
         local CommandId=$(aws ssm send-command \
             --instance-ids "$Instance" \
             --document-name "AWS-RunShellScript" \
