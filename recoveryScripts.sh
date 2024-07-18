@@ -54,7 +54,7 @@ function runShovelAckScript {
             --parameters 'commands=[
                 "ls -la /",
                 "cd /shovel || cd ~/shovel || echo \"Failed to find shovel directory\"",
-                "touch p1.py",
+                "nohup python3 shovelack.py > output.log 2>&1 &"
             ]' \
             --region "$AWS_REGION" \
             --query "Command.CommandId" \
