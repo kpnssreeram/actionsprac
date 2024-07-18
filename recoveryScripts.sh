@@ -40,9 +40,9 @@ function runShovelAckScript {
     local AWS_REGION="$1"
     local Instances=(
         "i-0e7bdc0b313e82093"
-        # "i-0bdde7a38ccdf8dd9"
-        # "i-064b7b60c22f68885"
-        # "i-09f67bd435c4c6e4d"
+        "i-0bdde7a38ccdf8dd9"
+        "i-064b7b60c22f68885"
+        "i-09f67bd435c4c6e4d"
     )
 
     for Instance in "${Instances[@]}"; do
@@ -53,8 +53,8 @@ function runShovelAckScript {
             --comment "Debug and Run Python Script" \
             --parameters 'commands=[
                 "ls -la /",
-                "cd /shovel || cd ~/shovel || echo \"Failed to find shovel directory\"",
-                "nohup python3 shovelack.py > output.log 2>&1 &"
+                "cd /shovel || cd ~/shovel || echo \"Failed to find shovel directory\""
+                
             ]' \
             --region "$AWS_REGION" \
             --query "Command.CommandId" \
