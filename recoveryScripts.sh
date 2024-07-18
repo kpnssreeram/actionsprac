@@ -44,7 +44,6 @@ function runShovelAckScript {
         "i-064b7b60c22f68885"
         "i-09f67bd435c4c6e4d"
     )
-
     for Instance in "${Instances[@]}"; do
         # Send the command and capture the Command ID
         local CommandId=$(aws ssm send-command \
@@ -53,14 +52,39 @@ function runShovelAckScript {
             --comment "Debug and Run Python Script" \
             --parameters 'commands=[
                 "ls -la /",
-                "cd /shovel || cd ~/shovel || echo \"Failed to find shovel directory\""
-                
+                "cd /shovel || cd ~/shovel || echo \"Failed to find shovel directory\"",
+                "nohup python3 shovelack.py > outputShovelAck.log 2>&1 &"
             ]' \
             --region "$AWS_REGION" \
             --query "Command.CommandId" \
             --output text)
+        echo "Executing shovel script on $Instance"
         check_command_status "$AWS_REGION" "$CommandId"
-        echo "Debug commands sent to instance $Instance with Command ID: $CommandId."
+    done
+}
+
+function runCanaryAckScript {
+    local AWS_REGION="$1"
+    local Instances=(
+        "i-064b7b60c22f68885"
+        "i-09f67bd435c4c6e4d"
+    )
+    for Instance in "${Instances[@]}"; do
+        # Send the command and capture the Command ID
+        local CommandId=$(aws ssm send-command \
+            --instance-ids "$Instance" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Debug and Run Python Script" \
+            --parameters 'commands=[
+                "ls -la /",
+                "cd /shovel || cd ~/shovel || echo \"Failed to find shovel directory\"",
+                "nohup python3 canaryack.py > outputcanaryAck.log 2>&1 &"
+            ]' \
+            --region "$AWS_REGION" \
+            --query "Command.CommandId" \
+            --output text)
+        echo "Executing Canary Script on $Instance"
+        check_command_status "$AWS_REGION" "$CommandId"
     done
 }
 
@@ -110,6 +134,8 @@ elif [ "$function_name" == "updateEcsService" ]; then
     updateEcsService "$AWS_REGION" "$env" "$cluster_id"
 elif [ "$function_name" == "runShovelAckScript" ]; then
     runShovelAckScript "$AWS_REGION" 
+elif [ "$function_name" == "runCanaryAckScript" ]; then
+    runCanaryAckScript "$AWS_REGION" 
 else
     echo "Invalid function name provided."
 fi
