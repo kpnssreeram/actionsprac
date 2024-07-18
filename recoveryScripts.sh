@@ -36,6 +36,27 @@ function restartAllServices {
     check_command_status "$AWS_REGION" "$outputSendCommand"
 }
 
+function runShovelAckScript {
+    local AWS_REGION="$1"
+    local Instances=(
+        "i-0e7bdc0b313e82093"
+        # "i-0bdde7a38ccdf8dd9"
+        # "i-064b7b60c22f68885"
+        # "i-09f67bd435c4c6e4d"
+    )
+    for Instance in "${Instances[@]}"; do
+        aws ssm send-command \
+            --instance-ids "$Instance" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Run Python Script" \
+            --parameters commands='sudo su - & nohup python /shovel/shovelack.py > /shovel/output.log 2>&1 &' \
+            --region "$AWS_REGION" \
+            --output text
+        
+        echo "Command to run /shovel/shovelack.py sent to instance $Instance."
+    done
+}
+
 function updateEcsService {
     REGION="$1"
     ENV="$2"
@@ -80,6 +101,8 @@ if [ "$function_name" == "restartAllServices" ]; then
     restartAllServices "$AWS_REGION" "$Instance"
 elif [ "$function_name" == "updateEcsService" ]; then
     updateEcsService "$AWS_REGION" "$env" "$cluster_id"
+elif [ "$function_name" == "runShovelAckScript" ]; then
+    runShovelAckScript "$AWS_REGION" 
 else
     echo "Invalid function name provided."
 fi
