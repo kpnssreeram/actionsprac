@@ -8,6 +8,17 @@ on:
       AWS_REGION:
         description: 'AWS Regions (comma-separated)'
         required: false
+      Instance:
+        description: 'Instance IDs (comma-separated)'
+        required: false
+      cluster:
+        description: 'Enter value of cluster'
+        default: null
+        required: false
+      env:
+        description: 'Enter value of env'
+        default: null
+        required: false
         
 permissions:
   id-token: write
