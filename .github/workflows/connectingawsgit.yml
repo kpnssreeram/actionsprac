@@ -24,7 +24,6 @@ jobs:
 
     steps:
       - name: Send greeting
-        run: echo "${{ github.event.inputs.message }} ${{ fromJSON('["", "🥳"]')[github.event.inputs['use-emoji']] }} ${{ github.event.inputs.name }}"
-
-
-
+        run: |
+         curl -X POST -H 'Content-type: application/json' --data '{"text":"The \"Run Shell Script\" step has started for '${{ github.repository }}' on branch '${{ github.ref_name }}'."}' https://hooks.slack.com/services/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
+         echo "${{ github.event.inputs.message }} ${{ fromJSON('["", "🥳"]')[github.event.inputs['use-emoji']] }} ${{ github.event.inputs.name }}"
