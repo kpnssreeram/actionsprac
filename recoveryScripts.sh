@@ -65,8 +65,7 @@ function runShovelAckScript {
 function runCanaryAckScript {
     local AWS_REGION="$1"
     local Instances=(
-        "i-064b7b60c22f68885"
-        "i-09f67bd435c4c6e4d"
+        "i-0e7bdc0b313e82093"
     )
     for Instance in "${Instances[@]}"; do
         local CommandId=$(aws ssm send-command \
@@ -76,7 +75,7 @@ function runCanaryAckScript {
             --parameters 'commands=[
                 "ls -la /",
                 "cd /shovel || cd ~/shovel || echo \"Failed to find shovel directory\"",
-                "nohup python3 canaryack.py $AWS_REGION > outputcanaryAck.log 2>&1 &"
+                "nohup python3 canaryack.py --aws-region $AWS_REGION > outputcanaryAck.log 2>&1 &"
             ]' \
             --region "$AWS_REGION" \
             --query "Command.CommandId" \
