@@ -65,9 +65,29 @@ function runShovelAckScript {
 function runCanaryAckScript {
     local AWS_REGION="$1"
     local Instances=(
-        "i-0e7bdc0b313e82093"
+        "i-064b7b60c22f68885"
+        "i-09f67bd435c4c6e4d"
     )
     for Instance in "${Instances[@]}"; do
+        echo "Executing Canary Script on $Instance"
+        
+        # First, kill all nohup processes
+        local KillCommand=$(aws ssm send-command \
+            --instance-ids "$Instance" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Kill all nohup processes" \
+            --parameters 'commands=[
+                "pkill -f nohup",
+                "sleep 2"
+            ]' \
+            --region "$AWS_REGION" \
+            --query "Command.CommandId" \
+            --output text)
+        
+        # Wait for the kill command to complete
+        check_command_status "$AWS_REGION" "$KillCommand"
+        
+        # Now run the new canaryack.py process
         local CommandId=$(aws ssm send-command \
             --instance-ids "$Instance" \
             --document-name "AWS-RunShellScript" \
@@ -75,12 +95,12 @@ function runCanaryAckScript {
             --parameters 'commands=[
                 "ls -la /",
                 "cd /shovel || cd ~/shovel || echo \"Failed to find shovel directory\"",
-                "nohup python3 canaryack.py --aws-region $AWS_REGION > outputcanaryAck.log 2>&1 &"
+                "nohup python3 canaryack.py $AWS_REGION > outputcanaryAck.log 2>&1 &"
             ]' \
             --region "$AWS_REGION" \
             --query "Command.CommandId" \
             --output text)
-        echo "Executing Canary Script on $Instance"
+        
         check_command_status "$AWS_REGION" "$CommandId"
     done
 }
