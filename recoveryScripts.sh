@@ -76,7 +76,7 @@ function runCanaryAckScript {
             --parameters 'commands=[
                 "ls -la /",
                 "cd /shovel || cd ~/shovel || echo \"Failed to find shovel directory\"",
-                "nohup python3 canaryack.py > outputcanaryAck.log 2>&1 &"
+                "nohup python3 canaryack.py $AWS_REGION > outputcanaryAck.log 2>&1 &"
             ]' \
             --region "$AWS_REGION" \
             --query "Command.CommandId" \
