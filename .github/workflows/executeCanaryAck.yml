@@ -39,7 +39,7 @@ jobs:
         with:
             role-to-assume: arn:aws:iam::468552248569:role/TestingDataDog_role
             role-session-name: ExceutePythonscript
-            aws-region: ${{inputs.AWS_REGION}}
+            aws-region: us-east-1
 
       - name: print inputs
         run: |
@@ -52,5 +52,5 @@ jobs:
       - name: Run script
         run: |
             echo "Executing CanaryAck script"
-            ./recoveryScripts.sh "${{inputs.function_name}}" "${{inputs.AWS_REGION}}" &
+            ./recoveryScripts.sh "${{inputs.function_name}}" "${{inputs.AWS_REGION}}"&
             wait
