@@ -47,10 +47,10 @@ jobs:
           echo "region is ${{ inputs.AWS_REGION }}"
 
       - name: Make script executable
-        run: chmod +x ./recoveryScripts.sh
+        run: chmod +x ./recoverpyt.sh
 
       - name: Run script
         run: |
             echo "Executing CanaryAck script"
-            ./recoverypyt.py "${{inputs.function_name}}" "${{inputs.AWS_REGION}}"&
+            ./recoverpyt.py "${{inputs.function_name}}" "${{inputs.AWS_REGION}}"&
             wait
