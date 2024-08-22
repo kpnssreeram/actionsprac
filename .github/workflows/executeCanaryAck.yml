@@ -30,7 +30,7 @@ jobs:
       group: ${{ github.workflow }}-${{ github.run_id }}
       cancel-in-progress: false
 
-    runs-on: [ubuntu-latest]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -47,10 +47,10 @@ jobs:
           echo "region is ${{ inputs.AWS_REGION }}"
 
       - name: Make script executable
-        run: chmod +x ./recoverpyt.py
+        run: chmod +x ./recoveryScripts.sh
 
       - name: Run script
         run: |
             echo "Executing CanaryAck script"
-            ./recoverpyt.py "${{inputs.function_name}}" "${{inputs.AWS_REGION}}"&
+            ./recoveryScripts.sh "${{inputs.function_name}}" "${{inputs.AWS_REGION}}" &
             wait
