@@ -30,7 +30,7 @@ jobs:
       group: ${{ github.workflow }}-${{ github.run_id }}
       cancel-in-progress: false
 
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, qa, memory-large]
     steps:
       - uses: actions/checkout@v4
 
