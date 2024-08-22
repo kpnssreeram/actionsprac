@@ -69,25 +69,6 @@ function runCanaryAckScript {
         "i-09f67bd435c4c6e4d"
     )
     for Instance in "${Instances[@]}"; do
-        echo "Executing Canary Script on $Instance"
-        
-        # First, kill all nohup processes
-        local KillCommand=$(aws ssm send-command \
-            --instance-ids "$Instance" \
-            --document-name "AWS-RunShellScript" \
-            --comment "Kill all nohup processes" \
-            --parameters 'commands=[
-                "pkill -f nohup",
-                "sleep 2"
-            ]' \
-            --region "$AWS_REGION" \
-            --query "Command.CommandId" \
-            --output text)
-        
-        # Wait for the kill command to complete
-        check_command_status "$AWS_REGION" "$KillCommand"
-        
-        # Now run the new canaryack.py process
         local CommandId=$(aws ssm send-command \
             --instance-ids "$Instance" \
             --document-name "AWS-RunShellScript" \
@@ -100,7 +81,7 @@ function runCanaryAckScript {
             --region "$AWS_REGION" \
             --query "Command.CommandId" \
             --output text)
-        
+        echo "Executing Canary Script on $Instance"
         check_command_status "$AWS_REGION" "$CommandId"
     done
 }

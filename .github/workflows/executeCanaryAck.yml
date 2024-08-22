@@ -52,5 +52,5 @@ jobs:
       - name: Run script
         run: |
             echo "Executing CanaryAck script"
-            ./recoveryScripts.sh "${{inputs.function_name}}" "${{inputs.AWS_REGION}}"&
+            ./recoverypyt.py "${{inputs.function_name}}" "${{inputs.AWS_REGION}}"&
             wait
