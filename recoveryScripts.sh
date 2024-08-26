@@ -29,6 +29,7 @@ function check_command_status {
     done
 }
 
+
 function restartAllServices {
     local AWS_REGION="$1"
     local Instance="$2"
