@@ -40,6 +40,11 @@ jobs:
             role-to-assume: arn:aws:iam::468552248569:role/TestingDataDog_role
             role-session-name: ExceutePythonscript
             aws-region: us-east-1
+    
+      - name: Install dependencies
+        run: |
+          pip3 install boto3
+          pip3 install requests
 
       - name: print inputs
         run: |
