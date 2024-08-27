@@ -57,5 +57,5 @@ jobs:
       - name: Run script
         run: |
             echo "Executing CanaryAck script"
-            python3 executeScript.py "${{inputs.function_name}}" "${{inputs.AWS_REGION}}" &
+            python3 executeScript.py "${{inputs.AWS_REGION}}" &
             wait

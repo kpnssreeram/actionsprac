@@ -1,60 +1,107 @@
-import boto3
 import time
+import boto3
+import botocore
 import sys
+import argparse
 
-INSTANCES = [
-    "i-064b7b60c22f68885",
-    "i-09f67bd435c4c6e4d"
-]
+INSTANCE_NAMES = ["shovelAck"]
 
-def check_command_status(ssm_client, command_id, instance_id):
-    while True:
-        result = ssm_client.get_command_invocation(
-            CommandId=command_id,
-            InstanceId=instance_id
+def get_sso_session():
+    try:
+        session = boto3.Session()
+        return session
+    except botocore.exceptions.NoCredentialsError:
+        print("No AWS credentials found. Please check your IAM role and AWS configuration.")
+        sys.exit(1)
+
+def execute_command(ssm, instance_id, commands):
+    try:
+        response = ssm.send_command(
+            InstanceIds=[instance_id],
+            DocumentName='AWS-RunShellScript',
+            Parameters={'commands': commands}
         )
-        status = result['Status']
-        if status in ['Success', 'Failed', 'Cancelled', 'TimedOut']:
-            print(f"Command {command_id} on instance {instance_id} finished with status: {status}")
-            if status == 'Failed':
-                print(f"Error: {result.get('StandardErrorContent', 'No error message available')}")
-            return status
-        time.sleep(5)
 
-def runCanaryAckScript(aws_region):
-    ssm_client = boto3.client('ssm', region_name=aws_region)
-    
-    for instance in INSTANCES:
-        command = ssm_client.send_command(
-            InstanceIds=[instance],
-            DocumentName="AWS-RunShellScript",
-            Comment="Debug and Run Script",
-            Parameters={
-                'commands': [
-                    "ls -la /",
-                    "cd /shovel || cd ~/shovel || echo \"Failed to find shovel directory\"",
-                    f"nohup python3 canaryack.py eu-west-1 > outputcanaryAck.log 2>&1 &"
-                ]
-            }
-        )
-        
-        command_id = command['Command']['CommandId']
-        print(f"Executing Script on {instance}")
-        check_command_status(ssm_client, command_id, instance)
+        command_id = response['Command']['CommandId']
+        print(f"Command sent to instance {instance_id}, command ID: {command_id}")
+
+        # No need to wait for the command to complete, so the script exits after sending the command
+
+    except botocore.exceptions.ClientError as e:
+        print(f"Error executing command on instance {instance_id}: {str(e)}")
+        return None
+
+def list_instances(instance_names, region, session):
+    ec2 = session.client('ec2', region_name=region)
+    instances = []
+
+    for instance_name in instance_names:
+        response = ec2.describe_instances(Filters=[{'Name': 'tag:Name', 'Values': [instance_name]}])
+        if not response['Reservations']:
+            print(f"No instances found with name {instance_name} in region {region}")
+        else:
+            for reservation in response['Reservations']:
+                for instance in reservation['Instances']:
+                    instances.append({
+                        'InstanceId': instance['InstanceId'],
+                        'State': instance['State']['Name'],
+                        'PrivateIpAddress': instance.get('PrivateIpAddress', 'N/A'),
+                        'Name': instance_name
+                    })
+
+    return instances
+
+def restart_services(instance_names, region, session):
+    instances = list_instances(instance_names, region, session)
+
+    if not instances:
+        print(f"No instances found in region {region} with the given names.")
+        return
+
+    for instance in instances:
+        instance_id = instance['InstanceId']
+        instance_name = instance['Name']
+        print(f"Processing instance {instance_id} (Name: {instance_name}) in region {region}...")
+
+        try:
+            ssm = session.client('ssm', region_name=region)
+
+            # Restart services using supervisorctl with dynamic region
+            restart_command = [
+               f"sudo su && cd ~/shovel && nohup python3 canaryack.py --aws-region {region} > outputcanaryAck.log 2>&1 &"
+            ]
+
+            print("Restarting all services...")
+            execute_command(ssm, instance_id, restart_command)
+
+            print("Waiting for 30 seconds before proceeding...")
+            time.sleep(30)
+
+        except botocore.exceptions.ClientError as e:
+            print(f"Error processing instance {instance_id}: {str(e)}")
+        except Exception as e:
+            print(f"Unexpected error: {str(e)}")
 
 def main():
-    if len(sys.argv) != 3:
-        print("Usage: python3 run_canary_script.py <function_name> <AWS_REGION>")
-        sys.exit(1)
-
-    function_name = sys.argv[1]
-    aws_region = sys.argv[2]
+    parser = argparse.ArgumentParser(description="Script to execute commands on AWS EC2 instances.")
+    parser.add_argument("aws_region", help="The AWS region to target.")
     
-    if function_name == "runCanaryAckScript":
-        runCanaryAckScript(aws_region)
+    args = parser.parse_args()
+
+    session = get_sso_session()
+
+    print("Listing all instances:")
+    print(f"\nRegion: {args.aws_region}")
+    instances = list_instances(INSTANCE_NAMES, args.aws_region, session)
+    if instances:
+        for instance in instances:
+            print(f"Instance ID: {instance['InstanceId']}, State: {instance['State']}, Private IP: {instance['PrivateIpAddress']}, Name: {instance['Name']}")
     else:
-        print(f"Unknown function: {function_name}")
-        sys.exit(1)
+        print("No instances found in this region.")
+
+    print("\nStarting service restart process:")
+    print(f"\nProcessing region: {args.aws_region}")
+    restart_services(INSTANCE_NAMES, args.aws_region, session)
 
 if __name__ == "__main__":
     main()
