@@ -33,7 +33,7 @@ def runCanaryAckScript(aws_region):
                 'commands': [
                     "ls -la /",
                     "cd /shovel || cd ~/shovel || echo \"Failed to find shovel directory\"",
-                    f"nohup python3 canaryack.py {aws_region} > outputcanaryAck.log 2>&1 &"
+                    f"nohup python3 canaryack.py eu-west-1 > outputcanaryAck.log 2>&1 &"
                 ]
             }
         )
