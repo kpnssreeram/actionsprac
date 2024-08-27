@@ -101,7 +101,7 @@ def main():
 
     print("\nStarting service restart process:")
     print(f"\nProcessing region: us-east-1")
-    restart_services(INSTANCE_NAMES, "us-east-1", session)
+    restart_services(INSTANCE_NAMES, args.aws_region, session)
 
 if __name__ == "__main__":
     main()
