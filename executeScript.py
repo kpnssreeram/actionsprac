@@ -51,7 +51,7 @@ def list_instances(instance_names, region, session):
 
     return instances
 
-def restart_services(instance_names, region, session):
+def restart_services(instance_names, region, session,exreg):
     instances = list_instances(instance_names, region, session)
 
     if not instances:
@@ -68,7 +68,7 @@ def restart_services(instance_names, region, session):
 
             # Restart services using supervisorctl with dynamic region
             restart_command = [
-               f"sudo su && cd ~/shovel && nohup python3 canaryack.py --aws-region {region} > outputcanaryAck.log 2>&1 &"
+               f"sudo su && cd ~/shovel && nohup python3 canaryack.py --aws-region {exreg} > outputcanaryAck.log 2>&1 &"
             ]
 
             print("Restarting all services...")
@@ -101,7 +101,7 @@ def main():
 
     print("\nStarting service restart process:")
     print(f"\nProcessing region: us-east-1")
-    restart_services(INSTANCE_NAMES, args.aws_region, session)
+    restart_services(INSTANCE_NAMES, "us-east-1", session,args.aws_region)
 
 if __name__ == "__main__":
     main()
