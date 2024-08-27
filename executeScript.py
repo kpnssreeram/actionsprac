@@ -91,8 +91,8 @@ def main():
     session = get_sso_session()
 
     print("Listing all instances:")
-    print(f"\nRegion: {args.aws_region}")
-    instances = list_instances(INSTANCE_NAMES, args.aws_region, session)
+    print(f"\nRegion: us-east-1")
+    instances = list_instances(INSTANCE_NAMES, "us-east-1", session)
     if instances:
         for instance in instances:
             print(f"Instance ID: {instance['InstanceId']}, State: {instance['State']}, Private IP: {instance['PrivateIpAddress']}, Name: {instance['Name']}")
@@ -100,8 +100,8 @@ def main():
         print("No instances found in this region.")
 
     print("\nStarting service restart process:")
-    print(f"\nProcessing region: {args.aws_region}")
-    restart_services(INSTANCE_NAMES, args.aws_region, session)
+    print(f"\nProcessing region: us-east-1")
+    restart_services(INSTANCE_NAMES, "us-east-1", session)
 
 if __name__ == "__main__":
     main()
