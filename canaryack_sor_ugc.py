@@ -1,3 +1,4 @@
+#nohup python3 canaryack_sor_ugc.py --aws-region eu-west-1 > outputcanaryAck.log 2>&1 &
 import requests
 import csv
 import time
