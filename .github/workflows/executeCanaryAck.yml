@@ -19,6 +19,11 @@ on:
         description: 'Enter value of env'
         default: null
         required: false
+      service:
+        description: 'Enter value of service sor-cat,sor-ugc'
+        default: 'sor-cat'
+        required: false
+
         
 permissions:
   id-token: write
@@ -57,5 +62,5 @@ jobs:
       - name: Run script
         run: |
             echo "Executing CanaryAck script"
-            python3 executeScript.py "${{inputs.AWS_REGION}}" &
+            python3 executeScript.py "${{inputs.AWS_REGION}}" "${{inputs.service}}" &
             wait

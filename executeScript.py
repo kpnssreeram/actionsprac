@@ -25,8 +25,6 @@ def execute_command(ssm, instance_id, commands):
         command_id = response['Command']['CommandId']
         print(f"Command sent to instance {instance_id}, command ID: {command_id}")
 
-        # No need to wait for the command to complete, so the script exits after sending the command
-
     except botocore.exceptions.ClientError as e:
         print(f"Error executing command on instance {instance_id}: {str(e)}")
         return None
@@ -51,7 +49,7 @@ def list_instances(instance_names, region, session):
 
     return instances
 
-def restart_services(instance_names, region, session,exreg):
+def canaryScriptSorUgc(instance_names, region, session, exreg):
     instances = list_instances(instance_names, region, session)
 
     if not instances:
@@ -66,12 +64,41 @@ def restart_services(instance_names, region, session,exreg):
         try:
             ssm = session.client('ssm', region_name=region)
 
-            # Restart services using supervisorctl with dynamic region
             restart_command = [
-               f"sudo su && cd ~/shovel && nohup python3 canaryack.py --aws-region eu-west-1 > outputcanaryAck.log 2>&1 &"
+               f"sudo su && cd ~/shovel && nohup python3 canaryacksor_ugc.py --aws-region {exreg} > outputcanaryAck_sor_ugc.log 2>&1 &"
             ]
 
-            print("Restarting all services...")
+            print("Executing canaryacksor_ugc.py...")
+            execute_command(ssm, instance_id, restart_command)
+
+            print("Waiting for 30 seconds before proceeding...")
+            time.sleep(30)
+
+        except botocore.exceptions.ClientError as e:
+            print(f"Error processing instance {instance_id}: {str(e)}")
+        except Exception as e:
+            print(f"Unexpected error: {str(e)}")
+
+def canaryScriptSorCat(instance_names, region, session, exreg):
+    instances = list_instances(instance_names, region, session)
+
+    if not instances:
+        print(f"No instances found in region {region} with the given names.")
+        return
+
+    for instance in instances:
+        instance_id = instance['InstanceId']
+        instance_name = instance['Name']
+        print(f"Processing instance {instance_id} (Name: {instance_name}) in region {region}...")
+
+        try:
+            ssm = session.client('ssm', region_name=region)
+
+            restart_command = [
+               f"sudo su && cd ~/shovel && nohup python3 canaryacksor_cat.py --aws-region {exreg} > outputcanaryAck_sor_cat.log 2>&1 &"
+            ]
+
+            print("Executing canaryacksor_cat.py...")
             execute_command(ssm, instance_id, restart_command)
 
             print("Waiting for 30 seconds before proceeding...")
@@ -85,7 +112,8 @@ def restart_services(instance_names, region, session,exreg):
 def main():
     parser = argparse.ArgumentParser(description="Script to execute commands on AWS EC2 instances.")
     parser.add_argument("aws_region", help="The AWS region to target.")
-    
+    parser.add_argument("script_type", choices=["sor-cat", "sor-ugc"], help="Type of script to execute (sor-cat or sor-ugc)")
+
     args = parser.parse_args()
 
     session = get_sso_session()
@@ -99,9 +127,13 @@ def main():
     else:
         print("No instances found in this region.")
 
-    print("\nStarting service restart process:")
+    print("\nStarting script execution process:")
     print(f"\nProcessing region: us-east-1")
-    restart_services(INSTANCE_NAMES, "us-east-1", session, args.aws_region)
+    
+    if args.script_type == "sor-ugc":
+        canaryScriptSorUgc(INSTANCE_NAMES, "us-east-1", session, args.aws_region)
+    elif args.script_type == "sor-cat":
+        canaryScriptSorCat(INSTANCE_NAMES, "us-east-1", session, args.aws_region)
 
 if __name__ == "__main__":
     main()
