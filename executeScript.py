@@ -95,7 +95,7 @@ def canaryScriptSorCat(instance_names, region, session, exreg):
             ssm = session.client('ssm', region_name=region)
 
             restart_command = [
-               f"sudo su && cd ~/shovel && nohup python3 canaryacksor_cat.py --aws-region {exreg} > outputcanaryAck_sor_cat.log 2>&1 &"
+               f"sudo su && cd ~/shovel && nohup python3 canaryack_sor_cat.py --aws-region {exreg} > outputcanaryAck_sor_cat.log 2>&1 &"
             ]
 
             print("Executing canaryacksor_cat.py...")
