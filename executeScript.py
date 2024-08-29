@@ -109,10 +109,40 @@ def canaryScriptSorCat(instance_names, region, session, exreg):
         except Exception as e:
             print(f"Unexpected error: {str(e)}")
 
+def shovelScript(instance_names, region, session, exreg):
+    instances = list_instances(instance_names, region, session)
+
+    if not instances:
+        print(f"No instances found in region {region} with the given names.")
+        return
+
+    for instance in instances:
+        instance_id = instance['InstanceId']
+        instance_name = instance['Name']
+        print(f"Processing instance {instance_id} (Name: {instance_name}) in region {region}...")
+
+        try:
+            ssm = session.client('ssm', region_name=region)
+
+            shovel_command = [
+               f"sudo su && cd ~/shovel && nohup python3 shovelack.py --aws-region {exreg} > shovelBus.log 2>&1 &"
+            ]
+
+            print("Executing shovelack.py...")
+            execute_command(ssm, instance_id, shovel_command)
+
+            print("Waiting for 30 seconds before proceeding...")
+            time.sleep(30)
+
+        except botocore.exceptions.ClientError as e:
+            print(f"Error processing instance {instance_id}: {str(e)}")
+        except Exception as e:
+            print(f"Unexpected error: {str(e)}")
+
 def main():
     parser = argparse.ArgumentParser(description="Script to execute commands on AWS EC2 instances.")
     parser.add_argument("aws_region", help="The AWS region to target.")
-    parser.add_argument("script_type", choices=["sor-cat", "sor-ugc"], help="Type of script to execute (sor-cat or sor-ugc)")
+    parser.add_argument("script_type", choices=["sor-cat", "sor-ugc", "shovel"], help="Type of script to execute (sor-cat, sor-ugc, or shovel)")
 
     args = parser.parse_args()
 
@@ -129,11 +159,13 @@ def main():
 
     print("\nStarting script execution process:")
     print(f"\nProcessing region: us-east-1")
-    
+
     if args.script_type == "sor-ugc":
         canaryScriptSorUgc(INSTANCE_NAMES, "us-east-1", session, args.aws_region)
     elif args.script_type == "sor-cat":
         canaryScriptSorCat(INSTANCE_NAMES, "us-east-1", session, args.aws_region)
+    elif args.script_type == "shovel":
+        shovelScript(INSTANCE_NAMES, "us-east-1", session, args.aws_region)
 
 if __name__ == "__main__":
     main()
