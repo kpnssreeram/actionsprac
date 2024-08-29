@@ -19,6 +19,10 @@ on:
         description: 'Enter value of env'
         default: null
         required: false
+      service:
+        description: 'Enter value of service sor-cat,sor-ugc'
+        default: 'shovel'
+        required: false
         
 permissions:
   id-token: write
@@ -52,5 +56,5 @@ jobs:
       - name: Run script
         run: |
             echo "Executing ShovelAck script"
-            ./recoveryScripts.sh "${{inputs.function_name}}" "${{inputs.AWS_REGION}}" &
+            python3 executeScript.py "${{inputs.AWS_REGION}}" "${{inputs.service}}" &
             wait
