@@ -125,7 +125,7 @@ def shovelScript(instance_names, region, session, exreg):
             ssm = session.client('ssm', region_name=region)
 
             shovel_command = [
-               f"sudo su && cd ~/shovel && nohup python3 shovelack.py --aws-region {exreg} > shovelBus.log 2>&1 &"
+               f"sudo su && cd ~/shovel && nohup python3 shovelack.py --aws_region {exreg} > shovelBus.log 2>&1 &"
             ]
 
             print("Executing shovelack.py...")
