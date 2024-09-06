@@ -1,0 +1,89 @@
+name: Purge Events Execution
+on:
+  schedule:
+      - cron: '1 * * * *'
+      - cron: '15 * * * *'
+      - cron: '30 * * * *'
+      - cron: '45 * * * *'
+  workflow_dispatch:
+    inputs:
+      function_name:
+        type: string
+        required: true
+      AWS_REGION:
+        description: 'AWS Regions (comma-separated)'
+        required: false
+      Instance:
+        description: 'Instance IDs (comma-separated)'
+        required: false
+      cluster:
+        description: 'Enter value of cluster'
+        default: null
+        required: false
+      env:
+        description: 'Enter value of env'
+        default: null
+        required: false
+      service:
+        description: 'Select the service (sor_cat or sor_ugc)'
+        default: 'sor_ugc'
+        required: true
+        type: choice
+        options:
+          - sor_cat
+          - sor_ugc
+          - shovel
+
+permissions:
+  id-token: write
+  contents: read
+  actions: read
+jobs:
+  Recovery_workflow:
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.run_id }}
+      cancel-in-progress: false
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+            role-to-assume: arn:aws:iam::468552248569:role/TestingDataDog_role
+            role-session-name: ExceutePythonscript
+            aws-region: us-east-1
+    
+      - name: Install dependencies
+        run: |
+          pip3 install boto3
+          pip3 install requests
+
+      - name: print inputs
+        run: |
+          echo "function_name is ${{ inputs.function_name }}"
+          echo "region is ${{ inputs.AWS_REGION }}"
+          echo "service is ${{ inputs.service}}"
+    
+      - name: Run script sor_ugc us 
+        if: github.event.schedule == '1 * * * *'
+        run: python3 executeScript.py "us-east-1" "sor_ugc" &
+
+      - name: Run script sor_ugc eu 
+        if: github.event.schedule == '15 * * * *'
+        run: python3 executeScript.py "eu-west-1" "sor_ugc" &
+
+      - name: Run script sor_cat us 
+        if: github.event.schedule == '30 * * * *'
+        run: python3 executeScript.py "us-east-1" "sor_cat" &
+
+      - name: Run script sor_cat eu
+        if: github.event.schedule == '45 * * * *'
+        run: python3 executeScript.py "eu-west-1" "sor_cat" &
+
+      - name: Run script
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          python3 purgeEvents.py --region ${{ inputs.AWS_REGION }} --apikey bazaar_admin --sortype ${{ inputs.service }}
+          wait
