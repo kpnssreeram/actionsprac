@@ -49,26 +49,18 @@ def list_instances(instance_names, region, session):
 
     return instances
 
-def canaryScriptSorUgc(instance_names, region, session, exreg):
-    instances = list_instances(instance_names, region, session)
+def purgeEventsUgcCat(instance_id, region, session, exreg,service):
 
-    if not instances:
-        print(f"No instances found in region {region} with the given names.")
-        return
-
-    for instance in instances:
-        instance_id = instance['InstanceId']
-        instance_name = instance['Name']
-        print(f"Processing instance {instance_id} (Name: {instance_name}) in region {region}...")
+        print(f"Processing instance {instance_id}")
 
         try:
             ssm = session.client('ssm', region_name=region)
 
             restart_command = [
-               f"sudo su && cd ~/shovel && nohup python3 canaryacksor_ugc.py --aws-region {exreg} > outputcanaryAck_sor_ugc.log 2>&1 &"
+               f"sudo su && cd ~/shovel && nohup python3 purgeEvents.py --region {exreg} --apikey bazaar_admin --sortype {service} > outputPurgeRequest.log 2>&1 &"
             ]
 
-            print("Executing canaryacksor_ugc.py...")
+            print("Executing PurgeRequest.py...")
             execute_command(ssm, instance_id, restart_command)
 
             print("Waiting for 30 seconds before proceeding...")
@@ -79,35 +71,35 @@ def canaryScriptSorUgc(instance_names, region, session, exreg):
         except Exception as e:
             print(f"Unexpected error: {str(e)}")
 
-def canaryScriptSorCat(instance_names, region, session, exreg):
-    instances = list_instances(instance_names, region, session)
+# def canaryScriptSorCat(instance_names, region, session, exreg):
+#     instances = list_instances(instance_names, region, session)
 
-    if not instances:
-        print(f"No instances found in region {region} with the given names.")
-        return
+#     if not instances:
+#         print(f"No instances found in region {region} with the given names.")
+#         return
 
-    for instance in instances:
-        instance_id = instance['InstanceId']
-        instance_name = instance['Name']
-        print(f"Processing instance {instance_id} (Name: {instance_name}) in region {region}...")
+#     for instance in instances:
+#         instance_id = instance['InstanceId']
+#         instance_name = instance['Name']
+#         print(f"Processing instance {instance_id} (Name: {instance_name}) in region {region}...")
 
-        try:
-            ssm = session.client('ssm', region_name=region)
+#         try:
+#             ssm = session.client('ssm', region_name=region)
 
-            restart_command = [
-               f"sudo su && cd ~/shovel && nohup python3 canaryack_sor_cat.py --aws-region {exreg} > outputcanaryAck_sor_cat.log 2>&1 &"
-            ]
+#             restart_command = [
+#                f"sudo su && cd ~/shovel && nohup python3 canaryack_sor_cat.py --aws-region {exreg} > outputcanaryAck_sor_cat.log 2>&1 &"
+#             ]
 
-            print("Executing canaryacksor_cat.py...")
-            execute_command(ssm, instance_id, restart_command)
+#             print("Executing canaryacksor_cat.py...")
+#             execute_command(ssm, instance_id, restart_command)
 
-            print("Waiting for 30 seconds before proceeding...")
-            time.sleep(30)
+#             print("Waiting for 30 seconds before proceeding...")
+#             time.sleep(30)
 
-        except botocore.exceptions.ClientError as e:
-            print(f"Error processing instance {instance_id}: {str(e)}")
-        except Exception as e:
-            print(f"Unexpected error: {str(e)}")
+#         except botocore.exceptions.ClientError as e:
+#             print(f"Error processing instance {instance_id}: {str(e)}")
+#         except Exception as e:
+#             print(f"Unexpected error: {str(e)}")
 
 def shovelScript(instance_names, region, session, exreg):
     instances = list_instances(instance_names, region, session)
@@ -160,10 +152,18 @@ def main():
     print("\nStarting script execution process:")
     print(f"\nProcessing region: us-east-1")
 
-    if args.script_type == "sor-ugc":
-        canaryScriptSorUgc(INSTANCE_NAMES, "us-east-1", session, args.aws_region)
-    elif args.script_type == "sor-cat":
-        canaryScriptSorCat(INSTANCE_NAMES, "us-east-1", session, args.aws_region)
+    if args.aws_region == "us-east-1" and args.script_type == "sor_ugc":
+        purgeEventsUgcCat("i-0e7bdc0b313e82093", "us-east-1", session, args.aws_region, args.script_type)
+
+    elif args.aws_region == "eu-west-1" and args.script_type == "sor_ugc":
+        purgeEventsUgcCat("i-0bdde7a38ccdf8dd9", "us-east-1", session, args.aws_region, args.script_type)
+
+    elif args.aws_region == "us-east-1" and args.script_type == "sor_cat":
+        purgeEventsUgcCat("i-09f67bd435c4c6e4d", "us-east-1", session, args.aws_region, args.script_type)
+    
+    elif args.aws_region == "eu-west-1" and args.script_type == "sor_cat":
+        purgeEventsUgcCat("i-064b7b60c22f68885", "us-east-1", session, args.aws_region, args.script_type)
+
     elif args.script_type == "shovel":
         shovelScript(INSTANCE_NAMES, "us-east-1", session, args.aws_region)
 
