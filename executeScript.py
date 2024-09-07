@@ -134,7 +134,7 @@ def shovelScript(instance_names, region, session, exreg):
 def main():
     parser = argparse.ArgumentParser(description="Script to execute commands on AWS EC2 instances.")
     parser.add_argument("aws_region", help="The AWS region to target.")
-    parser.add_argument("script_type", choices=["sor-cat", "sor-ugc", "shovel"], help="Type of script to execute (sor-cat, sor-ugc, or shovel)")
+    parser.add_argument("script_type", choices=["sor_cat", "sor_ugc", "shovel"], help="Type of script to execute (sor-cat, sor-ugc, or shovel)")
 
     args = parser.parse_args()
 
