@@ -85,5 +85,5 @@ jobs:
       - name: Run script
         if: github.event_name == 'workflow_dispatch'
         run: |
-          python3 purgeEvents.py --region ${{ inputs.AWS_REGION }} --apikey bazaar_admin --sortype ${{ inputs.service }}
+          python3 executeScript.py "${{inputs.AWS_REGION}}" "${{inputs.service}}" &
           wait
