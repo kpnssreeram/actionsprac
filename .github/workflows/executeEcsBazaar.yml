@@ -19,6 +19,11 @@ on:
         description: 'Enter value of env'
         default: null
         required: false
+      service:
+        description: 'Enter value of service'
+        default: null
+        required: false
+
         
 permissions:
   id-token: write
