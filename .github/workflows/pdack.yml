@@ -25,4 +25,4 @@ jobs:
       - name: Run incident monitoring script
         env:
           PAGERDUTY_API_KEY: ${{ secrets.PD_KEY }}
-        run: python pagerduty_incident_monitor.py
+        run: python pdack.py
