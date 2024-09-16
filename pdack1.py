@@ -6,7 +6,7 @@ from pdpyras import APISession
 PAGERDUTY_API_KEY = os.environ.get('PAGERDUTY_API_KEY')
 EXCLUDED_KEYWORD = 'solr'
 ASSIGNED_USER_ID = 'PYUFFMG'  # Replace with the user ID you want to check for assignments
-SERVICE_IDS = ['P0L4T9G', 'PJ06DY7']  # Replace with your list of service IDs
+SERVICE_IDS = ['P0L4TG', 'PJ06DY7']  # Replace with your list of service IDs
 
 session = APISession(PAGERDUTY_API_KEY)
 
