@@ -13,17 +13,16 @@ session = APISession(PAGERDUTY_API_KEY)
 
 def get_incidents():
     """
-    Fetch incidents that are either acknowledged or triggered within the last 24 hours
+    Fetch all incidents that are either acknowledged or triggered
     for the specified services.
     """
-    since = (datetime.utcnow() - timedelta(days=2)).isoformat()
     incidents = session.list_all('incidents', params={
-        'since': since,
         'statuses[]': ['triggered', 'acknowledged'],
         'service_ids[]': SERVICE_IDS,
         'sort_by': 'created_at:desc'
     })
     return incidents
+
 
 def print_incident_details(incidents):
     """
