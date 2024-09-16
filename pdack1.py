@@ -6,7 +6,7 @@ from pdpyras import APISession
 PAGERDUTY_API_KEY = os.environ.get('PAGERDUTY_API_KEY')
 EXCLUDED_KEYWORD = 'solr'
 ASSIGNED_USER_ID = 'PYUFFMG'  # Replace with the user ID you want to check for assignments
-SERVICE_IDS = ['P0L4TG', 'PJ0DY7']  # Replace with your list of service IDs
+SERVICE_IDS = ['P0L4T9G', 'PJ06DY7']  # Replace with your list of service IDs
 
 session = APISession(PAGERDUTY_API_KEY)
 
@@ -15,9 +15,8 @@ def get_incidents():
     Fetch incidents that are either acknowledged or triggered within the last 24 hours
     for the specified services.
     """
-    since = (datetime.utcnow() - timedelta(days=1)).isoformat()
+
     incidents = session.list_all('incidents', params={
-        'since': since,
         'statuses[]': ['triggered', 'acknowledged'],
         'service_ids[]': SERVICE_IDS,
         'sort_by': 'created_at:desc'
