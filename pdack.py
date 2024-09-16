@@ -54,7 +54,7 @@ def process_and_print_incidents(incidents):
         if EXCLUDED_KEYWORD.lower() in incident['title'].lower():
             continue  # Skip this incident if it contains 'solr' in the title
 
-        if incident['status'] == 'triggered':
+        if incident['status'] == 'triggered' and is_assigned_to_user(incident,ASSIGNED_USER_ID):
             acknowledge_incident(incident['id'])
 
         if is_assigned_to_user(incident, ASSIGNED_USER_ID):
