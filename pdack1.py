@@ -6,7 +6,7 @@ from pdpyras import APISession
 # Environment variables
 PAGERDUTY_API_KEY = os.environ.get('PAGERDUTY_API_KEY')
 EXCLUDED_KEYWORD = 'solr'
-SERVICE_IDS = ['P0L49G', 'PJ06DY7']  # Replace with your list of service IDs
+SERVICE_IDS = ['P0L49G', 'PJ06Y7']  # Replace with your list of service IDs
 
 # Initialize PagerDuty API session
 session = APISession(PAGERDUTY_API_KEY)
