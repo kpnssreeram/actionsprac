@@ -16,7 +16,7 @@ def get_incidents():
     Fetch incidents that are either acknowledged or triggered within the last 24 hours
     for the specified services.
     """
-    since = (datetime.utcnow() - timedelta(days=1)).isoformat()
+    since = (datetime.utcnow() - timedelta(days=2)).isoformat()
     incidents = session.list_all('incidents', params={
         'since': since,
         'statuses[]': ['triggered', 'acknowledged'],
