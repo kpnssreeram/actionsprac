@@ -13,6 +13,7 @@ INCLUDED_ALERTS = [
     "EmoDB: Blob: C* Memory Usable less that threshold",
      "EmoDB: DATABUS: Load Average (1 minute) exceeds threshold on",
     "Emodb Shovel error alert prod vpc"
+    "EmoDB: Estimated keys for slab queue keyspace for host"
 ]
 
 def get_incidents():
