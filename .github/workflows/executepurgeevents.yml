@@ -25,14 +25,9 @@ on:
         default: null
         required: false
       service:
-        description: 'Select the service (sor_cat or sor_ugc)'
-        default: 'sor_ugc'
-        required: true
-        type: choice
-        options:
-          - sor_cat
-          - sor_ugc
-          - shovel
+        description: 'Select the service (sor_cat or sor_ugc shovel)'
+        type: string
+        required: false
 
 permissions:
   id-token: write
