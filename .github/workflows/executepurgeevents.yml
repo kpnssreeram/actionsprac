@@ -1,10 +1,10 @@
 name: Purge Events Execution
 on:
   schedule:
-      - cron: '1 * * * *'
-      - cron: '15 * * * *'
-      - cron: '30 * * * *'
-      - cron: '45 * * * *'
+    - cron: '1 * * * *'
+    - cron: '15 * * * *'
+    - cron: '30 * * * *'
+    - cron: '45 * * * *'
   workflow_dispatch:
     inputs:
       function_name:
@@ -33,6 +33,7 @@ permissions:
   id-token: write
   contents: read
   actions: read
+
 jobs:
   Recovery_workflow:
     concurrency:
@@ -52,33 +53,36 @@ jobs:
     
       - name: Install dependencies
         run: |
-          pip3 install boto3
-          pip3 install requests
+          python3 -m venv venv  # Create a virtual environment
+          source venv/bin/activate  # Activate the virtual environment
+          pip install --upgrade pip  # Upgrade pip
+          pip install boto3 requests  # Install dependencies
 
-      - name: print inputs
+      - name: Print inputs
         run: |
           echo "function_name is ${{ inputs.function_name }}"
           echo "region is ${{ inputs.AWS_REGION }}"
-          echo "service is ${{ inputs.service}}"
+          echo "service is ${{ inputs.service }}"
     
       - name: Run script sor_ugc us 
         if: github.event.schedule == '1 * * * *'
-        run: python3 executeScript.py "us-east-1" "sor_ugc" &
+        run: python3 executeScript.py "us-east-1" "sor_ugc" "${{ secrets.API_KEY }}" &
 
       - name: Run script sor_ugc eu 
         if: github.event.schedule == '15 * * * *'
-        run: python3 executeScript.py "eu-west-1" "sor_ugc" &
+        run: python3 executeScript.py "eu-west-1" "sor_ugc" "${{ secrets.API_KEY }}" &
 
       - name: Run script sor_cat us 
         if: github.event.schedule == '30 * * * *'
-        run: python3 executeScript.py "us-east-1" "sor_cat" &
+        run: python3 executeScript.py "us-east-1" "sor_cat" "${{ secrets.API_KEY }}" &
 
       - name: Run script sor_cat eu
         if: github.event.schedule == '45 * * * *'
-        run: python3 executeScript.py "eu-west-1" "sor_cat" &
+        run: python3 executeScript.py "eu-west-1" "sor_cat" "${{ secrets.API_KEY }}" &
 
-      - name: Run script
+      - name: Run script on dispatch
         if: github.event_name == 'workflow_dispatch'
         run: |
-          python3 executeScript.py "${{inputs.AWS_REGION}}" "${{inputs.service}}" &
+          source venv/bin/activate
+          python3 executeScript.py "${{inputs.AWS_REGION}}" "${{inputs.service}}" "${{ secrets.API_KEY }}" &
           wait
