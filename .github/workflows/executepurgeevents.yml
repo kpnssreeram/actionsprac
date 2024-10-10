@@ -66,19 +66,27 @@ jobs:
     
       - name: Run script sor_ugc us 
         if: github.event.schedule == '1 * * * *'
-        run: python3 executeScript.py "us-east-1" "sor_ugc" "${{ secrets.API_KEY }}" &
+        run: |
+          source venv/bin/activate
+          python3 executeScript.py "us-east-1" "sor_ugc" "${{ secrets.API_KEY }}" &
 
       - name: Run script sor_ugc eu 
         if: github.event.schedule == '15 * * * *'
-        run: python3 executeScript.py "eu-west-1" "sor_ugc" "${{ secrets.API_KEY }}" &
+        run: |
+          source venv/bin/activate
+          python3 executeScript.py "eu-west-1" "sor_ugc" "${{ secrets.API_KEY }}" &
 
       - name: Run script sor_cat us 
         if: github.event.schedule == '30 * * * *'
-        run: python3 executeScript.py "us-east-1" "sor_cat" "${{ secrets.API_KEY }}" &
+        run: |
+          source venv/bin/activate
+          python3 executeScript.py "us-east-1" "sor_cat" "${{ secrets.API_KEY }}" &
 
       - name: Run script sor_cat eu
         if: github.event.schedule == '45 * * * *'
-        run: python3 executeScript.py "eu-west-1" "sor_cat" "${{ secrets.API_KEY }}" &
+        run: |
+          source venv/bin/activate
+          python3 executeScript.py "eu-west-1" "sor_cat" "${{ secrets.API_KEY }}" &
 
       - name: Run script on dispatch
         if: github.event_name == 'workflow_dispatch'
