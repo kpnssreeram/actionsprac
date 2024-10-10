@@ -57,7 +57,7 @@ def purgeEventsUgcCat(instance_id, region, session, exreg,service):
             ssm = session.client('ssm', region_name=region)
 
             restart_command = [
-               f"sudo su && cd ~/shovel && nohup python3 purgeEvents.py --region {exreg} --apikey bazaar_admin --sortype {service} > outputPurgeRequest.log 2>&1 &"
+               f"sudo su && cd ~/shovel && nohup python3 purgeEvents.py --region {exreg} --apikey  --sortype {service} > outputPurgeRequest.log 2>&1 &"
             ]
 
             print("Executing PurgeRequest.py...")
