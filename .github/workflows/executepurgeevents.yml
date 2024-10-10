@@ -82,5 +82,6 @@ jobs:
       - name: Run script
         if: github.event_name == 'workflow_dispatch'
         run: |
+          source venv/bin/activate
           python3 executeScript.py "${{inputs.AWS_REGION}}" "${{inputs.service}}" &
           wait
