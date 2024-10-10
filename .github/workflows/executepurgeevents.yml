@@ -52,8 +52,10 @@ jobs:
     
       - name: Install dependencies
         run: |
-          pip3 install boto3
-          pip3 install requests
+          python3 -m venv venv  # Create a virtual environment
+          source venv/bin/activate  # Activate the virtual environment
+          pip install --upgrade pip  # Upgrade pip
+          pip install boto3 requests  # Install dependencies
 
       - name: print inputs
         run: |
