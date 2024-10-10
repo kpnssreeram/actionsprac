@@ -49,27 +49,27 @@ def list_instances(instance_names, region, session):
 
     return instances
 
-def purgeEventsUgcCat(instance_id, region, session, exreg,service):
+def purgeEventsUgcCat(instance_id, region, session, exreg, service, api_key):
+    print(f"Processing instance {instance_id}")
 
-        print(f"Processing instance {instance_id}")
+    try:
+        ssm = session.client('ssm', region_name=region)
 
-        try:
-            ssm = session.client('ssm', region_name=region)
+        restart_command = [
+            f"sudo su && cd ~/shovel && nohup python3 purgeEvents.py --region {exreg} --apikey {api_key} --sortype {service} > outputPurgeRequest.log 2>&1 &"
+        ]
 
-            restart_command = [
-               f"sudo su && cd ~/shovel && nohup python3 purgeEvents.py --region {exreg} --apikey bazaar_admin --sortype {service} > outputPurgeRequest.log 2>&1 &"
-            ]
+        print("Executing PurgeRequest.py...")
+        execute_command(ssm, instance_id, restart_command)
 
-            print("Executing PurgeRequest.py...")
-            execute_command(ssm, instance_id, restart_command)
+        print("Waiting for 30 seconds before proceeding...")
+        time.sleep(30)
 
-            print("Waiting for 30 seconds before proceeding...")
-            time.sleep(30)
+    except botocore.exceptions.ClientError as e:
+        print(f"Error processing instance {instance_id}: {str(e)}")
+    except Exception as e:
+        print(f"Unexpected error: {str(e)}")
 
-        except botocore.exceptions.ClientError as e:
-            print(f"Error processing instance {instance_id}: {str(e)}")
-        except Exception as e:
-            print(f"Unexpected error: {str(e)}")
 
 # def canaryScriptSorCat(instance_names, region, session, exreg):
 #     instances = list_instances(instance_names, region, session)
@@ -135,7 +135,7 @@ def main():
     parser = argparse.ArgumentParser(description="Script to execute commands on AWS EC2 instances.")
     parser.add_argument("aws_region", help="The AWS region to target.")
     parser.add_argument("script_type", choices=["sor_cat", "sor_ugc", "shovel"], help="Type of script to execute (sor-cat, sor-ugc, or shovel)")
-
+    parser.add_argument("API", help="The API Key")
     args = parser.parse_args()
 
     session = get_sso_session()
@@ -153,16 +153,16 @@ def main():
     print(f"\nProcessing region: us-east-1")
 
     if args.aws_region == "us-east-1" and args.script_type == "sor_ugc":
-        purgeEventsUgcCat("i-0e7bdc0b313e82093", "us-east-1", session, args.aws_region, args.script_type)
+        purgeEventsUgcCat("i-0e7bdc0b313e82093", "us-east-1", session, args.aws_region, args.script_type,args.API)
 
     elif args.aws_region == "eu-west-1" and args.script_type == "sor_ugc":
-        purgeEventsUgcCat("i-0bdde7a38ccdf8dd9", "us-east-1", session, args.aws_region, args.script_type)
+        purgeEventsUgcCat("i-0bdde7a38ccdf8dd9", "us-east-1", session, args.aws_region, args.script_type,args.API)
 
     elif args.aws_region == "us-east-1" and args.script_type == "sor_cat":
-        purgeEventsUgcCat("i-09f67bd435c4c6e4d", "us-east-1", session, args.aws_region, args.script_type)
+        purgeEventsUgcCat("i-09f67bd435c4c6e4d", "us-east-1", session, args.aws_region, args.script_type,args.API)
     
     elif args.aws_region == "eu-west-1" and args.script_type == "sor_cat":
-        purgeEventsUgcCat("i-064b7b60c22f68885", "us-east-1", session, args.aws_region, args.script_type)
+        purgeEventsUgcCat("i-064b7b60c22f68885", "us-east-1", session, args.aws_region, args.script_type,args.API)
 
     elif args.script_type == "shovel":
         shovelScript(INSTANCE_NAMES, "us-east-1", session, args.aws_region)
