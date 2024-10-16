@@ -47,6 +47,8 @@ jobs:
             
       - name: Install dependencies
         run: |
+          python3 -m venv venv  # Create a virtual environment
+          source venv/bin/activate  # Activate the virtual environment
           pip3 install boto3
           pip3 install requests
 
@@ -61,5 +63,6 @@ jobs:
       - name: Run script
         run: |
             echo "Executing ShovelAck script"
+            source venv/bin/activate
             python3 executeScript.py "${{inputs.AWS_REGION}}" "${{inputs.service}}" &
             wait
