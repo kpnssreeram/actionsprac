@@ -64,5 +64,5 @@ jobs:
         run: |
             echo "Executing ShovelAck script"
             source venv/bin/activate
-            python3 executeScript.py "${{inputs.AWS_REGION}}" "${{inputs.service}}" &
+            python3 executeScript.py "${{inputs.AWS_REGION}}" "${{inputs.service}}" " " &
             wait
