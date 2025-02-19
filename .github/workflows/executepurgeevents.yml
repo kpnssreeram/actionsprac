@@ -10,6 +10,7 @@ on:
       function_name:
         type: string
         required: true
+        
       AWS_REGION:
         description: 'AWS Regions (comma-separated)'
         required: false
