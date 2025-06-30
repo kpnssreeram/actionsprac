@@ -30,7 +30,6 @@ on:
         type: string
         required: false
 
-
 permissions:
   id-token: write
   contents: read
