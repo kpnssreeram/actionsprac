@@ -81,6 +81,7 @@ def purge_data(region, api_key, sor_type, logger, retries=3, delay=2):
     logger.error(f"All {retries} attempts failed. Exiting.")
     print(f"All {retries} attempts failed. Exiting.")
 
+
 if __name__ == "__main__":
     # Initialize the logger
     logger = setup_logger()
